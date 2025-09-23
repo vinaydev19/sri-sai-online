@@ -17,8 +17,12 @@ app.use(express.static("public"))
 
 
 // import routes
+import authRouter from "./routes/auth.route.js"
+import employeeRouter from "./routes/employee.route.js"
 
 // use router
+app.use("/api/v1/auth", authRouter)
+app.use("/api/v1/employees", employeeRouter)
 
 // error handler
 app.use(errorHandler)

@@ -33,6 +33,11 @@ const serviceSchema = new monogoose.Schema({
         type: monogoose.Schema.Types.ObjectId,
         ref: 'User',
     },
+    userId: {
+        type: monogoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 })
 
 export const Service = monogoose.model('Service', serviceSchema);
