@@ -1,6 +1,6 @@
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-import { asyncHandler } from '../middlewares/asyncHandler.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 import { Customer } from "../models/customer.model.js";
 
 
@@ -19,7 +19,7 @@ const createCustomer = asyncHandler(async (req, res) => {
         selectedServices,
     } = req.body;
 
-    if (!customerId || !fullName || !MobileNumber || !totalAmount || !dueAmount || !userId) {
+    if (!customerId || !fullName || !MobileNumber || !totalAmount || !dueAmount) {
         return next(new ApiError(400, 'Customer ID, Name, Mobile, Total Amount, Due Amount, and User ID are required'));
     }
 
@@ -65,7 +65,7 @@ const getCustomerById = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(200, { customer }, 'Customer retrieved successfully'));
 });
 
-export const updateCustomer = asyncHandler(async (req, res, next) => {
+const updateCustomer = asyncHandler(async (req, res, next) => {
     const customer = await Customer.findById(req.params.id);
     if (!customer) {
         return next(new ApiError(404, 'Customer not found'));
@@ -89,13 +89,15 @@ export const updateCustomer = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(true, 200, 'Customer updated successfully', customer));
 });
 
-export const deleteCustomer = asyncHandler(async (req, res, next) => {
-    const customer = await Customer.findById(req.params.id);
+const deleteCustomer = asyncHandler(async (req, res, next) => {
+    const id = req.params.id;
+
+    const customer = await Customer.findByIdAndDelete(id);
+
     if (!customer) {
         return next(new ApiError(404, 'Customer not found'));
     }
 
-    await customer.remove();
     res.status(200).json(new ApiResponse(true, 200, 'Customer deleted successfully'));
 });
 

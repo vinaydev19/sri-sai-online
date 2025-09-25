@@ -1,7 +1,10 @@
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-import { asyncHandler } from '../middlewares/asyncHandler.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 import { User } from '../models/user.model.js';
+import jwt from 'jsonwebtoken';
+
+const isProd = process.env.NODE_ENV === "production";
 
 const accessCookieOptions = {
     httpOnly: true,
