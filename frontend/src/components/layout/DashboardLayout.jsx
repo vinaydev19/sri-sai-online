@@ -1,8 +1,18 @@
 import React from 'react'
+import Sidebar from './Sidebar'
+import Navbar from './Navbar'
+import { Outlet } from 'react-router-dom'
 
 function DashboardLayout() {
   return (
-    <div>DashboardLayout</div>
+    <div>
+      <h2>DashboardLayout</h2>
+      <Sidebar />
+      <Navbar />
+      <div>
+        <Outlet /> {/* This renders Dashboard, Profile, Services, Customers */}
+      </div>
+    </div>
   )
 }
 
