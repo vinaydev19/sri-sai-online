@@ -139,7 +139,7 @@ const Services = () => {
       key: 'serviceStatus',
       label: 'Status',
       render: (value) => (
-        <Badge variant={value === 'active' ? 'default' : 'secondary'}>
+        <Badge variant={value}>
           {value.charAt(0).toUpperCase() + value.slice(1)}
         </Badge>
       )

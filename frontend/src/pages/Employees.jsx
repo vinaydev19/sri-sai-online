@@ -105,7 +105,7 @@ const Employees = () => {
       key: 'role',
       label: 'Role',
       render: (value) => (
-        <Badge variant={value === 'admin' ? 'default' : 'secondary'}>
+        <Badge variant={value}>
           {value.charAt(0).toUpperCase() + value.slice(1)}
         </Badge>
       )

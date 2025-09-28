@@ -25,6 +25,7 @@ const initialCustomers = [
     paidAmount: 1000,
     dueAmount: 3000,
     paymentMode: 'Cash',
+    status: 'In Progress',
     note: 'VIP customer',
     requiredDocuments: ['PAN Card', 'Aadhar Card'],
     deliveryDate: '2025-10-15',
@@ -43,6 +44,7 @@ const Customers = () => {
     totalAmount: '',
     paidAmount: '',
     dueAmount: '',
+    status: 'Pending',
     paymentMode: 'Cash',
     note: '',
     requiredDocuments: '',
@@ -65,6 +67,7 @@ const Customers = () => {
       totalAmount,
       paidAmount,
       dueAmount,
+      status: formData.status,
       paymentMode: formData.paymentMode,
       note: formData.note,
       requiredDocuments: formData.requiredDocuments.split(',').map(doc => doc.trim()).filter(Boolean),
@@ -89,6 +92,7 @@ const Customers = () => {
       paidAmount: '',
       dueAmount: '',
       paymentMode: 'Cash',
+      status: 'Pending',
       note: '',
       requiredDocuments: '',
       deliveryDate: '',
@@ -108,6 +112,7 @@ const Customers = () => {
       paidAmount: customer.paidAmount,
       dueAmount: customer.dueAmount,
       paymentMode: customer.paymentMode,
+      status: customer.status,
       note: customer.note,
       requiredDocuments: customer.requiredDocuments.join(', '),
       deliveryDate: customer.deliveryDate,
@@ -155,17 +160,25 @@ const Customers = () => {
     },
     { key: 'deliveryDate', label: 'Delivery Date' },
     {
-      key: 'selectedServices',
-      label: 'Services',
-      render: val => val.map(svc => (
+      key: 'status',
+      label: 'Status',
+      render: val => (
         <Badge
-          key={svc.id}
-          variant={svc.serviceStatus === 'active' ? 'default' : 'secondary'}
-          className="text-xs mr-1"
+          variant={
+            val === 'Cancelled'
+              ? 'cancelled'
+              : val === 'In Progress'
+                ? 'inProgress'
+                : val === 'Pending'
+                  ? 'pending'
+                  : val === 'Completed'
+                    ? 'completed'
+                    : 'secondary'
+          }
         >
-          {svc.serviceName}
+          {val}
         </Badge>
-      ))
+      )
     }
   ];
 
@@ -263,23 +276,44 @@ const Customers = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="paymentMode">Payment Mode</Label>
-                <Select
-                  value={formData.paymentMode}
-                  className="w-full"
-                  onValueChange={val => setFormData(prev => ({ ...prev, paymentMode: val }))}
-                >
-                  <SelectTrigger className="w-full border-1 border-gray-300">
-                    <SelectValue placeholder="Select payment mode" />
-                  </SelectTrigger>
-                  <SelectContent className="w-full border-1 border-gray-300 bg-white">
-                    <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" value="Cash">Cash</SelectItem>
-                    <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" value="Card">Card</SelectItem>
-                    <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" value="Online">Online</SelectItem>
-                    <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" value="UPI">UPI</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex gap-4">
+                {/* Payment Mode - left side */}
+                <div className="flex-1 space-y-2">
+                  <Label htmlFor="paymentMode">Payment Mode</Label>
+                  <Select
+                    value={formData.paymentMode}
+                    onValueChange={val => setFormData(prev => ({ ...prev, paymentMode: val }))}
+                  >
+                    <SelectTrigger className="w-full border-1 border-gray-300">
+                      <SelectValue placeholder="Select payment mode" />
+                    </SelectTrigger>
+                    <SelectContent className="w-full border-1 border-gray-300 bg-white">
+                      <SelectItem value="Cash">Cash</SelectItem>
+                      <SelectItem value="Card">Card</SelectItem>
+                      <SelectItem value="Online">Online</SelectItem>
+                      <SelectItem value="UPI">UPI</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Status - right side */}
+                <div className="flex-1 space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={val => setFormData(prev => ({ ...prev, status: val }))}
+                  >
+                    <SelectTrigger className="w-full border-1 border-gray-300">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent className="w-full border-1 border-gray-300 bg-white">
+                      <SelectItem value="Pending">Pending</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                      <SelectItem value="Cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-2">
