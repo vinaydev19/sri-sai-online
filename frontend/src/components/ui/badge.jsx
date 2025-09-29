@@ -18,13 +18,19 @@ const badgeVariants = cva(
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
 
-        // 👇 custom roles
+        // 👇 custom variants for statuses
+        pendingDocs: "bg-gray-100 text-gray-800 border border-gray-300",
+        pending: "bg-yellow-100 text-yellow-800",
+        apply: "bg-blue-100 text-blue-800",
+        inProgress: "bg-indigo-100 text-indigo-800",
+        submitted: "bg-purple-100 text-purple-800",
+        completed: "bg-green-600 text-white",
+        delivered: "bg-teal-100 text-teal-800",
+
+        // 👇 keep your role-based ones
         employee: "border-transparent bg-green-100 text-green-800",
         admin: "border-transparent bg-purple-100 text-purple-800",
         cancelled: "bg-red-500 text-white",
-        inProgress: "bg-gray-100 text-gray-800",
-        pending: "bg-yellow-100 text-yellow-800",
-        completed: "bg-gray-900 text-white",
         active: "bg-green-100 text-green-800 border border-green-300",
         inactive: "bg-red-100 text-red-800 border border-red-300",
       },

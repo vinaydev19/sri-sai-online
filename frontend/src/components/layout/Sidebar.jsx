@@ -44,12 +44,12 @@ const navigation = [
 const Sidebar = () => {
   const user = {
     fullName: "John Doe",
-    role: "admin", // or 'employee'
+    role: "employee", // or 'employee'
   };
   const location = useLocation();
 
   const filteredNavigation = navigation.filter((item) =>
-    item.roles.includes("admin" || "employee")
+    item.roles.includes(user.role)
   );
 
   const logout = () => {
@@ -59,7 +59,7 @@ const Sidebar = () => {
 
   return (
     <div className="w-64 bg-background border-gray-200 border-r-1 h-screen flex flex-col">
-
+      {/* header */}
       <div className="p-6 border-gray-200 border-b-1">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white rounded-lg flex items-center justify-center">
@@ -72,6 +72,7 @@ const Sidebar = () => {
         </div>
       </div>
 
+      {/* navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2">
         {filteredNavigation.map((item) => {
           const isActive = location.pathname === item.href;
@@ -79,11 +80,10 @@ const Sidebar = () => {
             <Link
               key={item.name}
               to={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-[#111827] text-white"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
+                ? "bg-[#111827] text-white"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <item.icon className="h-5 w-5" />
               {item.name}
@@ -92,6 +92,7 @@ const Sidebar = () => {
         })}
       </nav>
 
+      {/* user & logout */}
       <div className="p-4 border-gray-200 border-t-1">
         <Card className="p-3 mb-3">
           <div className="flex items-center gap-3">
@@ -113,7 +114,6 @@ const Sidebar = () => {
           variant="ghost"
           onClick={logout}
           className="w-full justify-start gap-3 text-gray-900 hover:text-gray-700 cursor-pointer"
-          size={undefined}
         >
           <LogOut className="h-4 w-4" />
           Logout
