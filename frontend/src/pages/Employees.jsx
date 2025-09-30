@@ -7,30 +7,16 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Plus, UserPlus } from 'lucide-react';
-
-const initialUsers = [
-  {
-    id: '1',
-    fullName: 'John Doe',
-    employeeId: 'EMP001',
-    username: 'jdoe',
-    email: 'john@example.com',
-    password: 'password123',
-    role: 'employee'
-  },
-  {
-    id: '2',
-    fullName: 'Jane Smith',
-    employeeId: 'EMP002',
-    username: 'jsmith',
-    email: 'jane@example.com',
-    password: 'securePass!',
-    role: 'employee'
-  }
-];
+import { useCreateEmployeeMutation, useDeleteEmployeeMutation, useGetEmployeesQuery, useUpdateEmployeeMutation } from '@/store/api/employeeSlice';
+import toast from 'react-hot-toast';
 
 const Employees = () => {
-  const [users, setUsers] = useState(initialUsers);
+  const { data, isLoading, isError, refetch } = useGetEmployeesQuery();
+  const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
+  const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
+  const [deleteEmployee] = useDeleteEmployeeMutation();
+
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
@@ -42,27 +28,26 @@ const Employees = () => {
     role: 'employee'
   });
 
-  const employees = users.filter((u) => u.role === 'employee');
+  const employees = data?.data?.employees || [];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (editingUser) {
-      // Update user
-      setUsers((prev) =>
-        prev.map((u) => (u.id === editingUser.id ? { ...editingUser, ...formData } : u))
-      );
-    } else {
-      // Add new user
-      const newUser = {
-        id: Date.now().toString(),
-        ...formData
-      };
-      setUsers((prev) => [...prev, newUser]);
+    try {
+      if (editingUser) {
+        await updateEmployee({ id: editingUser._id, ...formData }).unwrap();
+        toast.success('Employee updated successfully');
+      } else {
+        await createEmployee(formData).unwrap();
+        toast.success('Employee created successfully');
+      }
+      resetForm();
+      refetch();
+    } catch (err) {
+      console.error(err);
+      toast.error('Operation failed');
     }
-
-    resetForm();
   };
+
 
   const resetForm = () => {
     setFormData({
@@ -77,6 +62,19 @@ const Employees = () => {
     setIsDialogOpen(false);
   };
 
+  const handleAdd = () => {
+    setEditingUser(null); // important!
+    setFormData({
+      fullName: '',
+      employeeId: '',
+      username: '',
+      email: '',
+      password: '',
+      role: 'employee'
+    });
+    setIsDialogOpen(true);
+  };
+
   const handleEdit = (employee) => {
     setEditingUser(employee);
     setFormData({
@@ -84,15 +82,20 @@ const Employees = () => {
       employeeId: employee.employeeId,
       username: employee.username,
       email: employee.email,
-      password: employee.password,
+      password: '',
       role: employee.role
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (employee) => {
-    if (window.confirm(`Are you sure you want to delete ${employee.fullName}?`)) {
-      setUsers((prev) => prev.filter((u) => u.id !== employee.id));
+  const handleDelete = async (employee) => {
+    try {
+      await deleteEmployee(employee._id).unwrap();
+      toast.success('Employee deleted successfully');
+      refetch();
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete employee');
     }
   };
 
@@ -122,7 +125,9 @@ const Employees = () => {
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white hover:cursor-pointer">
+            <Button
+              onClick={handleAdd}
+              className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white hover:cursor-pointer">
               <Plus className="h-4 w-4 mr-2" />
               Add Employee
             </Button>
@@ -195,7 +200,7 @@ const Employees = () => {
                   value={formData.password}
                   onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
                   placeholder="Enter password"
-                  required
+                // required
                 />
               </div>
 

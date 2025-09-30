@@ -1,5 +1,6 @@
 import { AUTH_URL } from "@/utils/constants";
 import { apiSlice } from "./apiSlice";
+import { getUser } from "../slices/userSlice";
 
 
 
@@ -20,6 +21,14 @@ export const authApiSlice = apiSlice.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ['Auth'],
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+                    dispatch(getUser(data?.data?.loggedUser));
+                } catch (err) {
+                    console.error('Login failed: ', err);
+                }
+            }
         }),
         logout: builder.mutation({
             query: () => ({
@@ -41,6 +50,14 @@ export const authApiSlice = apiSlice.injectEndpoints({
                 method: 'GET',
             }),
             providesTags: ['Auth', 'User'],
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+                    dispatch(getUser(data?.data?.user));
+                } catch (err) {
+                    console.error('Login failed: ', err);
+                }
+            }
         }),
         updateAccountDetails: builder.mutation({
             query: (data) => ({

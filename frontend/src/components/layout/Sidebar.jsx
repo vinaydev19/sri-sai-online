@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useLocation, Link } from "react-router-dom";
+import { NavLink, useLocation, Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -12,6 +12,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useDispatch, useSelector } from "react-redux";
+import { useGetCurrentUserQuery, useLogoutMutation } from "@/store/api/authSlice";
+import { getUser, logout } from "@/store/slices/userSlice";
+import toast from "react-hot-toast";
 
 const navigation = [
   {
@@ -42,19 +46,29 @@ const navigation = [
 ];
 
 const Sidebar = () => {
-  const user = {
-    fullName: "John Doe",
-    role: "employee", // or 'employee'
-  };
+  const user = useSelector((state) => state.user.user);
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const filteredNavigation = navigation.filter((item) =>
     item.roles.includes(user.role)
   );
 
-  const logout = () => {
-    // Implement logout functionality here
-    console.log("Logging out...");
+  // api call to logout
+  const [logoutApi] = useLogoutMutation();
+  const { data } = useGetCurrentUserQuery()
+
+  const logoutBtn = async () => {
+    try {
+      await logoutApi().unwrap();
+      dispatch(logout());
+      navigate('/login');
+      toast.success('Logged out successfully!');
+    } catch (err) {
+      console.error('Logout failed', err);
+      toast.error(err?.data?.message || 'Logout failed. Please try again.');
+    }
   };
 
   return (
@@ -101,7 +115,7 @@ const Sidebar = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-700 truncate">
-                {user?.fullName}
+                {user?.username}
               </p>
               <p className="text-xs text-gray-600 truncate">
                 {user?.role === "admin" ? "Administrator" : "Employee"}
@@ -112,7 +126,7 @@ const Sidebar = () => {
 
         <Button
           variant="ghost"
-          onClick={logout}
+          onClick={logoutBtn}
           className="w-full justify-start gap-3 text-gray-900 hover:text-gray-700 cursor-pointer"
         >
           <LogOut className="h-4 w-4" />

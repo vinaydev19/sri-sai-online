@@ -1,34 +1,45 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Briefcase, AlertCircle } from 'lucide-react';
+import { useLoginMutation } from '@/store/api/authSlice';
+import toast from 'react-hot-toast';
 
 export const Login = () => {
-  const [credentials, setCredentials] = useState({
+  const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate()
+
+  const [login, { isLoading }] = useLoginMutation()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-  };
-
-  const handleDemoLogin = (role) => {
-    const demoCredentials = {
-      admin: { username: 'admin', password: 'password123' },
-      employee: { username: 'alice', password: 'password123' }
-    };
-
-    setCredentials(demoCredentials[role]);
     setError('');
-  };
+
+    try {
+      const res = await login(formData).unwrap();
+      console.log('Login successful:', res);
+      // Redirect or show success message
+      navigate('/')
+      toast.success(res.message);
+    } catch (error) {
+      console.error('Registration failed:', err);
+      if (err?.data?.errors) {
+        const messages = err.data.errors.map(e => Object.values(e)[0]).join(', ');
+        setError(messages);
+      } else {
+        setError(err?.data?.message || 'login failed. Please try again.');
+      }
+      toast.error(err?.data?.message || 'login failed.');
+    };
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] flex items-center justify-center p-4">
@@ -51,8 +62,8 @@ export const Login = () => {
                 <Input
                   id="username"
                   type="text"
-                  value={credentials.username}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
+                  value={formData.username}
+                  onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
                   placeholder="Enter your username, email, or employee ID"
                   required
                   className="transition-all focus:ring-2 focus:ring-primary"
@@ -64,8 +75,8 @@ export const Login = () => {
                 <Input
                   id="password"
                   type="password"
-                  value={credentials.password}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
+                  value={formData.password}
+                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                   placeholder="Enter your password"
                   required
                   className="transition-all focus:ring-2 focus:ring-primary"

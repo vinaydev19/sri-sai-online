@@ -12,6 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useRegisterMutation } from '@/store/api/authSlice';
+import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export const Register = () => {
   const [formData, setFormData] = useState({
@@ -22,27 +26,31 @@ export const Register = () => {
   });
 
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // api call 
+  const [register, { isLoading }] = useRegisterMutation()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
     try {
-      console.log('Registering:', formData);
-
-      // Simulate delay
-      await new Promise((res) => setTimeout(res, 1000));
-
-      if (!formData.username || !formData.email || !formData.password || !formData.role) {
-        setError('All fields are required.');
-      }
+      const res = await register(formData).unwrap();
+      console.log('Registration successful:', res);
+      // Redirect or show success message
+      navigate('/login')
+      toast.success(res.message);
     } catch (err) {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+      console.error('Registration failed:', err);
+      if (err?.data?.errors) {
+        const messages = err.data.errors.map(e => Object.values(e)[0]).join(', ');
+        setError(messages);
+      } else {
+        setError(err?.data?.message || 'Registration failed. Please try again.');
+      }
+      toast.error(err?.data?.message || 'Registration failed.');
+    };
   };
 
   return (
@@ -119,6 +127,7 @@ export const Register = () => {
                 </Select>
               </div>
 
+              {/* Error display */}
               {error && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
