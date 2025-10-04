@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
     employeeId: {
         type: String,
         unique: true,
-        trim: true
+        trim: true,
+        sparse: true
     },
     username: {
         type: String,
@@ -46,6 +47,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    createdByWho: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

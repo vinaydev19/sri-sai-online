@@ -2,9 +2,6 @@ import { body, param } from "express-validator";
 
 export const createServiceValidator = () => {
     return [
-        body('serviceId')
-            .notEmpty().withMessage('Service ID is required')
-            .isString().withMessage('Service ID must be a string'),
         body('serviceName')
             .notEmpty().withMessage('Service Name is required')
             .isString().withMessage('Service Name must be a string'),

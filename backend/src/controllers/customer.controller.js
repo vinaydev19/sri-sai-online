@@ -1,12 +1,13 @@
+import mongoose from 'mongoose';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { Customer } from "../models/customer.model.js";
+import { generateCustomerId } from '../utils/generateId.js';
 
 
 const createCustomer = asyncHandler(async (req, res) => {
     const {
-        customerId,
         fullName,
         MobileNumber,
         totalAmount,
@@ -14,10 +15,11 @@ const createCustomer = asyncHandler(async (req, res) => {
         dueAmount,
         paymentMode,
         note,
-        requiredDocuments,
         deliveryDate,
         selectedServices,
     } = req.body;
+
+    const customerId = await generateCustomerId()
 
     if (!customerId || !fullName || !MobileNumber || !totalAmount || !dueAmount) {
         return next(new ApiError(400, 'Customer ID, Name, Mobile, Total Amount, Due Amount, and User ID are required'));
@@ -39,7 +41,6 @@ const createCustomer = asyncHandler(async (req, res) => {
         dueAmount,
         paymentMode,
         note,
-        requiredDocuments,
         deliveryDate,
         selectedServices,
         userId: req.user._id
@@ -49,20 +50,64 @@ const createCustomer = asyncHandler(async (req, res) => {
 });
 
 const getCustomers = asyncHandler(async (req, res) => {
-    const customers = await Customer.find({ userId: req.user._id });
-    res.status(200).json(new ApiResponse(200, { customers }, 'Customers retrieved successfully'));
+
+    const customers = await Customer.aggregate([
+        { $match: { userId: new mongoose.Types.ObjectId(req.user._id) } },
+        {
+            $lookup: {
+                from: 'services',
+                localField: 'selectedServices.serviceId',
+                foreignField: '_id',
+                as: 'serviceDetails'
+            }
+        },
+        {
+            $addFields: {
+                dueAmount: { $subtract: ['$totalAmount', '$paidAmount'] }
+            }
+        },
+        { $sort: { createdAt: -1 } }
+    ]);
+
+    res.status(200).json(
+        new ApiResponse(200, { customers }, 'Customers retrieved successfully')
+    );
 });
 
 const getCustomerById = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
 
-    const customer = await Customer.findOne({ _id: id, userId: req.user._id });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return next(new ApiError(400, 'Invalid customer ID'));
+    }
 
-    if (!customer) {
+    const customer = await Customer.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(id),
+                userId: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            $lookup: {
+                from: 'services',
+                localField: 'selectedServices.serviceId',
+                foreignField: '_id',
+                as: 'serviceDetails'
+            }
+        },
+        {
+            $addFields: {
+                dueAmount: { $subtract: ['$totalAmount', '$paidAmount'] }
+            }
+        },
+    ]);
+
+    if (!customer || customer.length === 0) {
         return next(new ApiError(404, 'Customer not found'));
     }
 
-    res.status(200).json(new ApiResponse(200, { customer }, 'Customer retrieved successfully'));
+    res.status(200).json(new ApiResponse(200, { customer: customer[0] }, 'Customer retrieved successfully'));
 });
 
 const updateCustomer = asyncHandler(async (req, res, next) => {
@@ -71,7 +116,7 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
         return next(new ApiError(404, 'Customer not found'));
     }
 
-    const { fullName, MobileNumber, totalAmount, paidAmount, dueAmount, paymentMode, note, requiredDocuments, deliveryDate, selectedServices, overStatus } = req.body;
+    const { fullName, MobileNumber, totalAmount, paidAmount, dueAmount, paymentMode, note, deliveryDate, selectedServices, overStatus } = req.body;
 
     customer.fullName = fullName || customer.fullName;
     customer.MobileNumber = MobileNumber || customer.MobileNumber;
@@ -80,7 +125,6 @@ const updateCustomer = asyncHandler(async (req, res, next) => {
     customer.dueAmount = dueAmount || customer.dueAmount;
     customer.paymentMode = paymentMode || customer.paymentMode;
     customer.note = note || customer.note;
-    customer.requiredDocuments = requiredDocuments || customer.requiredDocuments;
     customer.deliveryDate = deliveryDate || customer.deliveryDate;
     customer.selectedServices = selectedServices || customer.selectedServices;
     customer.overStatus = overStatus || customer.overStatus;
@@ -101,10 +145,16 @@ const deleteCustomer = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(true, 200, 'Customer deleted successfully'));
 });
 
+const getNextCustomerId = asyncHandler(async (req, res, next) => {
+    const nextId = await generateCustomerId();
+
+    res.status(200).json(new ApiResponse(200, { nextId }, 'Next Service ID generated successfully'));
+});
 export {
     createCustomer,
     getCustomers,
     getCustomerById,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    getNextCustomerId
 };

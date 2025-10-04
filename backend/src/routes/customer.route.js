@@ -2,10 +2,13 @@ import { Router } from 'express';
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import { createCustomerValidator, updateCustomerValidator } from "../validators/customer.validate.js"
-import { createCustomer, getCustomerById, getCustomers, updateCustomer, deleteCustomer } from "../controllers/customer.controller.js";
+import { createCustomer, getCustomerById, getCustomers, updateCustomer, deleteCustomer, getNextCustomerId } from "../controllers/customer.controller.js";
 import { authorizeRoles } from "../middlewares/roles.middleware.js";
 
 const router = Router();
+
+// next id 
+router.route('/next-id').get(verifyJWT, authorizeRoles('admin', 'employee'), getNextCustomerId);
 
 router.route('/').post(verifyJWT, authorizeRoles('admin', 'employee'), createCustomerValidator(), validate, createCustomer)
 

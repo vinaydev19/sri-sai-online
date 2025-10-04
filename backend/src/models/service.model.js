@@ -1,6 +1,6 @@
-import monogoose from 'mongoose';
+import mongoose from 'mongoose';
 
-const serviceSchema = new monogoose.Schema({
+const serviceSchema = new mongoose.Schema({
     serviceId: {
         type: String,
         required: true,
@@ -16,10 +16,6 @@ const serviceSchema = new monogoose.Schema({
         type: Number,
         required: true,
     },
-    requiredDocuments: {
-        type: [String],
-        default: []
-    },
     note: {
         type: String,
         trim: true
@@ -30,14 +26,14 @@ const serviceSchema = new monogoose.Schema({
         default: 'active'
     },
     assignedTo: {
-        type: monogoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
     userId: {
-        type: monogoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     }
-})
+}, { timestamps: true });
 
-export const Service = monogoose.model('Service', serviceSchema);
+export const Service = mongoose.model('Service', serviceSchema);

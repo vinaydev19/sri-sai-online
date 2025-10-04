@@ -2,9 +2,6 @@ import { body, param } from 'express-validator';
 
 export const createCustomerValidator = () => {
     return [
-        body('customerId')
-            .notEmpty().withMessage('Customer ID is required')
-            .isString().withMessage('Customer ID must be a string'),
         body('fullName')
             .notEmpty().withMessage('Full Name is required')
             .isString().withMessage('Full Name must be a string'),

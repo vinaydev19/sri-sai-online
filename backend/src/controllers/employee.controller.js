@@ -24,6 +24,7 @@ const createEmployee = asyncHandler(async (req, res, next) => {
             username,
             email,
             password,
+            createdByWho: req.user._id,
             role: role || 'employee'
         }
     );
@@ -40,30 +41,33 @@ const createEmployee = asyncHandler(async (req, res, next) => {
 const getAllEmployees = asyncHandler(async (req, res, next) => {
     const employees = await User.find({
         $and: [
-            { role: { $in: ['employee'] } },
+            { role: 'employee' },
+            { createdByWho: req.user._id },
             { _id: { $ne: req.user._id } }
         ]
     }).select('-password -refreshToken');
 
-    return res.status(200).json(new ApiResponse(200, { employees }, 'Employees fetched successfully'));
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { employees }, 'Employees fetched successfully'));
 });
 
 const getOneEmployee = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
 
     const employee = await User.findOne({
-        $and: [
-            { _id: id },
-            { role: { $in: ['employee'] } }
-        ]
+        _id: id,
+        role: 'employee',
+        createdByWho: req.user._id
     }).select('-password -refreshToken');
 
     if (!employee) {
         throw new ApiError(404, 'Employee not found');
     }
 
-    return res.status(200).json(new ApiResponse(200, { employee }, 'Employee fetched successfully'));
-
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { employee }, 'Employee fetched successfully'));
 });
 
 const updateEmployee = asyncHandler(async (req, res, next) => {

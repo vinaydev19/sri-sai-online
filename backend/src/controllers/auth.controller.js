@@ -64,11 +64,19 @@ const registerUser = asyncHandler(async (req, res, next) => {
 const loginUser = asyncHandler(async (req, res, next) => {
     const { username, email, employeeId, password } = req.body;
 
+    console.log(req.body);
+
+
     if ([!password].includes(undefined) || [!username, !email, !employeeId].every(field => field === undefined)) {
         throw new ApiError(400, 'All fields are required');
     }
 
-    const findUser = await User.findOne({ $or: [{ email }, { username }, { employeeId }] });
+    const query = [];
+    if (username) query.push({ username });
+    if (email) query.push({ email });
+    if (employeeId) query.push({ employeeId });
+
+    const findUser = await User.findOne({ $or: query });
 
     if (!findUser) {
         throw new ApiError(401, 'User not found');

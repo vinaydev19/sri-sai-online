@@ -74,10 +74,6 @@ const customerSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    requiredDocuments: {
-        type: [String],
-        default: []
-    },
     deliveryDate: {
         type: Date,
     },
