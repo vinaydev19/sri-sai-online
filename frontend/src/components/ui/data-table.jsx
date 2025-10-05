@@ -80,7 +80,7 @@ export function DataTable({
                         <tbody>
                             {data.map((item) => (
                                 <tr
-                                    key={item.id}
+                                    key={item._id}
                                     className="border-gray-200 border-1 hover:bg-[#f9f9fa] transition-colors"
                                 >
                                     {columns.map((column, colIndex) => (

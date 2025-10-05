@@ -7,18 +7,16 @@ import mongoose from 'mongoose';
 
 
 const createService = asyncHandler(async (req, res, next) => {
-    const { serviceName, serviceAmount, note, serviceStatus, assignedTo } = req.body;
-
-    const serviceId = await generateServiceId();
+    const { serviceId, serviceName, serviceAmount, note, serviceStatus, assignedTo } = req.body;
 
     if (!serviceId || !serviceName || !serviceAmount) {
-        return next(new ApiError(400, 'Service ID, Name and Amount are required'));
+        throw new ApiError(400, 'Service ID, Name, Amount, and User ID are required');
     }
 
     const existingService = await Service.findOne({ serviceId });
 
     if (existingService) {
-        return next(new ApiError(400, 'Service with this ID already exists'));
+        throw new ApiError(400, 'Service with this ID already exists');
     }
 
     const service = await Service.create({
@@ -32,7 +30,7 @@ const createService = asyncHandler(async (req, res, next) => {
     });
 
     if (!service) {
-        return next(new ApiError(500, 'Failed to create service'));
+        throw new ApiError(500, 'Failed to create service');
     }
 
     res.status(201).json(new ApiResponse(201, { service }, 'Service created successfully'));
@@ -79,12 +77,11 @@ const getAllServices = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(200, { services }, 'Services retrieved successfully'));
 });
 
-
 const getServiceById = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return next(new ApiError(400, 'Invalid service ID'));
+        throw new ApiError(400, 'Invalid service ID');
     }
 
     const service = await Service.aggregate([
@@ -133,7 +130,6 @@ const getServiceById = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(200, { service: service[0] }, 'Service retrieved successfully'));
 });
 
-
 const updateService = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
     const { serviceId, serviceName, serviceAmount, note, serviceStatus, assignedTo } = req.body;
@@ -141,14 +137,14 @@ const updateService = asyncHandler(async (req, res, next) => {
     const service = await Service.findOne({ _id: id, userId: req.user._id });
 
     if (!service) {
-        return next(new ApiError(404, 'Service not found'));
+        throw new ApiError(404, 'Service not found');
     }
 
     service.serviceId = serviceId || service.serviceId;
     service.serviceName = serviceName || service.serviceName;
     service.serviceAmount = serviceAmount || service.serviceAmount;
     service.note = note || service.note;
-    service.status = serviceStatus || service.status;
+    service.serviceStatus = serviceStatus || service.serviceStatus;
     service.assignedTo = assignedTo || service.assignedTo;
 
     await service.save();
@@ -162,7 +158,7 @@ const deleteService = asyncHandler(async (req, res, next) => {
     const service = await Service.findOneAndDelete({ _id: id, userId: req.user._id });
 
     if (!service) {
-        return next(new ApiError(404, 'Service not found'));
+        throw new ApiError(404, 'Service not found');
     }
 
     res.status(200).json(new ApiResponse(200, {}, 'Service deleted successfully'));

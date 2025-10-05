@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -8,81 +8,90 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Settings2 } from 'lucide-react';
-
-const initialServices = [
-  {
-    id: '1',
-    serviceId: 'SVC001',
-    serviceName: 'GST Registration',
-    serviceAmount: 1500,
-    requiredDocuments: ['PAN Card', 'Aadhar Card'],
-    note: 'For small businesses',
-    serviceStatus: 'active',
-    assignedTo: 'John Doe'
-  },
-  {
-    id: '2',
-    serviceId: 'SVC002',
-    serviceName: 'Income Tax Filing',
-    serviceAmount: 2500,
-    requiredDocuments: ['Form 16', 'Bank Statement'],
-    note: 'Annual tax filing',
-    serviceStatus: 'inactive',
-    assignedTo: 'Jane Smith'
-  }
-];
-
-const employees = [
-  { id: 'emp1', fullName: 'John Doe' },
-  { id: 'emp2', fullName: 'Jane Smith' }
-];
+import { useCreateServiceMutation, useDeleteServiceMutation, useGetServicesQuery, useLazyNextServiceIdQuery, useNextServiceIdQuery, useUpdateServiceMutation } from '@/store/api/serviceSlice';
+import { useGetEmployeesQuery } from '@/store/api/employeeSlice';
+import toast from 'react-hot-toast';
 
 const Services = () => {
-  const [services, setServices] = useState(initialServices);
+  // RTK Query hooks
+  const { data, isLoading, isError, refetch } = useGetServicesQuery();
+  const [createService] = useCreateServiceMutation();
+  const [updateService] = useUpdateServiceMutation();
+  const [deleteService] = useDeleteServiceMutation();
+  const { data: employeeData, isLoading: isEmployeeLoading } = useGetEmployeesQuery();
+  const [fetchNextServiceId] = useLazyNextServiceIdQuery();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [formData, setFormData] = useState({
     serviceId: '',
     serviceName: '',
     serviceAmount: '',
-    requiredDocuments: '',
     note: '',
     serviceStatus: 'active',
     assignedTo: ''
   });
 
-  const handleSubmit = (e) => {
+  const services = data?.data?.services || [];
+  const employees = employeeData?.data?.employees || [];
+
+  useEffect(() => {
+    const fetchNextId = async () => {
+      if (!editingService && isDialogOpen) {
+        try {
+          const response = await fetchNextServiceId().unwrap();
+          const nextId = response?.data?.nextId;
+          if (nextId) {
+            setFormData(prev => ({ ...prev, serviceId: nextId }));
+          }
+        } catch (err) {
+          console.error('Failed to fetch next service ID:', err);
+        }
+      }
+    };
+    fetchNextId();
+  }, [isDialogOpen, editingService, fetchNextServiceId]);
+
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const serviceData = {
-      id: editingService ? editingService.id : Date.now().toString(),
+    const payload = {
       serviceId: formData.serviceId,
       serviceName: formData.serviceName,
       serviceAmount: parseFloat(formData.serviceAmount),
-      requiredDocuments: formData.requiredDocuments.split(',').map(doc => doc.trim()).filter(Boolean),
       note: formData.note,
       serviceStatus: formData.serviceStatus,
-      assignedTo: formData.assignedTo
+      assignedTo: formData.assignedTo,
     };
 
-    if (editingService) {
-      setServices(prev => prev.map(s => (s.id === editingService.id ? serviceData : s)));
-    } else {
-      setServices(prev => [...prev, serviceData]);
+    try {
+      if (editingService) {
+        const res = await updateService({ id: editingService._id, ...payload }).unwrap();
+        toast.success(res.message);
+      } else {
+        const res = await createService(payload).unwrap();
+        console.log('Service created successfully:', res);
+        toast.success(res.message);
+      }
+      resetForm();
+      refetch();
+    } catch (err) {
+      console.error('Error saving service:', err);
+      toast.error(err?.data?.message || 'Failed to save service.');
     }
-
-    resetForm();
   };
+
 
   const resetForm = () => {
     setFormData({
       serviceId: '',
       serviceName: '',
       serviceAmount: '',
-      requiredDocuments: '',
       note: '',
       serviceStatus: 'active',
-      assignedTo: ''
+      assignedTo: '',
     });
     setEditingService(null);
     setIsDialogOpen(false);
@@ -93,20 +102,24 @@ const Services = () => {
     setFormData({
       serviceId: service.serviceId,
       serviceName: service.serviceName,
-      serviceAmount: service.serviceAmount.toString(),
-      requiredDocuments: service.requiredDocuments.join(', '),
-      note: service.note,
-      serviceStatus: service.serviceStatus,
-      assignedTo: service.assignedTo
+      serviceAmount: service.serviceAmount?.toString() || '',
+      note: service.note || '',
+      serviceStatus: service.serviceStatus || 'active',
+      assignedTo: service.assignedTo || '',
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (service) => {
-    if (window.confirm(`Are you sure you want to delete "${service.serviceName}"?`)) {
-      setServices(prev => prev.filter(s => s.id !== service.id));
+  const handleDelete = async (service) => {
+    try {
+      const res = await deleteService(service._id).unwrap();
+      refetch();
+      toast.success(res.message);
+    } catch (err) {
+      console.error('Error deleting service:', err);
+      toast.error(err?.data?.message || 'Failed to delete service.');
     }
-  };
+  }
 
   const columns = [
     { key: 'serviceId', label: 'Service ID' },
@@ -114,25 +127,7 @@ const Services = () => {
     {
       key: 'serviceAmount',
       label: 'Amount',
-      render: (value) => `₹${value.toLocaleString()}`
-    },
-    {
-      key: 'requiredDocuments',
-      label: 'Required Documents',
-      render: (value) => (
-        <div className="flex flex-wrap gap-1">
-          {value.slice(0, 2).map((doc, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {doc}
-            </Badge>
-          ))}
-          {value.length > 2 && (
-            <Badge variant="outline" className="text-xs">
-              +{value.length - 2} more
-            </Badge>
-          )}
-        </div>
-      )
+      render: (value) => `₹${value?.toLocaleString()}`,
     },
     { key: 'note', label: 'Note' },
     {
@@ -140,11 +135,15 @@ const Services = () => {
       label: 'Status',
       render: (value) => (
         <Badge variant={value}>
-          {value.charAt(0).toUpperCase() + value.slice(1)}
+          {value?.charAt(0).toUpperCase() + value?.slice(1)}
         </Badge>
-      )
+      ),
     },
-    { key: 'assignedTo', label: 'Assigned To' }
+    {
+      key: 'assignedToDetails',
+      label: 'Assigned To',
+      render: (value) => value?.fullName || '—',
+    },
   ];
 
   return (
@@ -178,10 +177,14 @@ const Services = () => {
                   <Input
                     id="serviceId"
                     value={formData.serviceId}
-                    className="border-1 border-gray-300"
+                    className={`border border-gray-300 ${!editingService
+                      ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                      : 'bg-white'
+                      }`}
                     onChange={(e) => setFormData(prev => ({ ...prev, serviceId: e.target.value }))}
                     placeholder="Enter service ID"
                     required
+                    readOnly
                   />
                 </div>
 
@@ -213,20 +216,6 @@ const Services = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="requiredDocuments">Required Documents</Label>
-                  <Textarea
-                    id="requiredDocuments"
-                    value={formData.requiredDocuments}
-                    className="border-1 border-gray-300"
-                    onChange={(e) => setFormData(prev => ({ ...prev, requiredDocuments: e.target.value }))}
-                    placeholder="Enter documents separated by commas"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Separate multiple documents with commas
-                  </p>
-                </div>
-
-                <div className="space-y-2">
                   <Label htmlFor="note">Note</Label>
                   <Textarea
                     id="note"
@@ -249,7 +238,7 @@ const Services = () => {
                     </SelectTrigger>
                     <SelectContent className="w-full border-1 border-gray-300 bg-white">
                       {employees.map((employee) => (
-                        <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" key={employee.id} value={employee.fullName}>
+                        <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" key={employee._id} value={employee._id}>
                           {employee.fullName}
                         </SelectItem>
                       ))}

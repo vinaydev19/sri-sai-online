@@ -41,6 +41,13 @@ export const customersApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Customers'],
         }),
+        nextCustomerId: builder.query({
+            query: () => ({
+                url: `${CUSTOMER_URL}/next-id`,
+                method: 'GET',
+            }),
+            providesTags: ['Customers'],
+        }),
     }),
 });
 
@@ -50,4 +57,6 @@ export const {
     useGetCustomerByIdQuery,
     useUpdateCustomerMutation,
     useDeleteCustomerMutation,
+    useNextCustomerIdQuery,
+    useLazyNextCustomerIdQuery,
 } = customersApiSlice;

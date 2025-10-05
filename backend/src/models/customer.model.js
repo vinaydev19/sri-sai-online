@@ -11,13 +11,17 @@ const serviceRequestSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    applicationNumber: {
+        type: String,
+        trim: true
+    },
     serviceAmount: {
         type: Number,
         required: true,
     },
     serviceStatus: {
         type: String,
-        enum: ["Pending Docs", "Pending", "Apply", "In Progress", "Submitted", "Completed", "Delivered"],
+        enum: ["Pending Docs", "Pending", "Apply", "In Progress", "Submitted", "Completed", "Delivered", "Cancelled"],
         default: 'Pending'
     },
     assignedTo: {
@@ -42,7 +46,7 @@ const customerSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    MobileNumber: {
+    mobileNumber: {
         type: String,
         required: true,
         trim: true
@@ -67,7 +71,7 @@ const customerSchema = new mongoose.Schema({
     },
     overStatus: {
         type: String,
-        enum: ["Pending Docs", "Pending", "Apply", "In Progress", "Submitted", "Completed", "Delivered"],
+        enum: ["Pending Docs", "Pending", "Apply", "In Progress", "Submitted", "Completed", "Delivered", "Cancelled"],
         default: 'Pending'
     },
     note: {

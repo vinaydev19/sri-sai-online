@@ -40,6 +40,13 @@ export const serviceApiSlice = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ['Services'],
         }),
+        nextServiceId: builder.query({
+            query: () => ({
+                url: `${SERVICE_URL}/next-id`,
+                method: 'GET',
+            }),
+            providesTags: ['Services'],
+        }),
     }),
 })
 
@@ -49,4 +56,6 @@ export const {
     useGetServiceByIdQuery,
     useUpdateServiceMutation,
     useDeleteServiceMutation,
+    useNextServiceIdQuery,
+    useLazyNextServiceIdQuery,
 } = serviceApiSlice;

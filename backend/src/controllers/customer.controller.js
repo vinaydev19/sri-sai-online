@@ -8,8 +8,9 @@ import { generateCustomerId } from '../utils/generateId.js';
 
 const createCustomer = asyncHandler(async (req, res) => {
     const {
+        customerId,
         fullName,
-        MobileNumber,
+        mobileNumber,
         totalAmount,
         paidAmount,
         dueAmount,
@@ -19,23 +20,22 @@ const createCustomer = asyncHandler(async (req, res) => {
         selectedServices,
     } = req.body;
 
-    const customerId = await generateCustomerId()
 
-    if (!customerId || !fullName || !MobileNumber || !totalAmount || !dueAmount) {
-        return next(new ApiError(400, 'Customer ID, Name, Mobile, Total Amount, Due Amount, and User ID are required'));
+    if (!customerId || !fullName || !mobileNumber || !totalAmount || !dueAmount) {
+        throw new ApiError(400, 'Missing required fields');
     }
 
 
     const existingCustomer = await Customer.findOne({ customerId });
 
     if (existingCustomer) {
-        return next(new ApiError(400, 'Customer with this ID already exists'));
+        throw new ApiError(400, 'Customer ID already exists');
     }
 
     const customer = await Customer.create({
         customerId,
         fullName,
-        MobileNumber,
+        mobileNumber,
         totalAmount,
         paidAmount,
         dueAmount,
@@ -78,7 +78,7 @@ const getCustomerById = asyncHandler(async (req, res, next) => {
     const id = req.params.id;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return next(new ApiError(400, 'Invalid customer ID'));
+        throw new ApiError(400, 'Invalid Customer ID');
     }
 
     const customer = await Customer.aggregate([
@@ -104,7 +104,7 @@ const getCustomerById = asyncHandler(async (req, res, next) => {
     ]);
 
     if (!customer || customer.length === 0) {
-        return next(new ApiError(404, 'Customer not found'));
+        throw new ApiError(404, 'Customer not found');
     }
 
     res.status(200).json(new ApiResponse(200, { customer: customer[0] }, 'Customer retrieved successfully'));
@@ -113,13 +113,13 @@ const getCustomerById = asyncHandler(async (req, res, next) => {
 const updateCustomer = asyncHandler(async (req, res, next) => {
     const customer = await Customer.findById(req.params.id);
     if (!customer) {
-        return next(new ApiError(404, 'Customer not found'));
+        throw new ApiError(404, 'Customer not found');
     }
 
-    const { fullName, MobileNumber, totalAmount, paidAmount, dueAmount, paymentMode, note, deliveryDate, selectedServices, overStatus } = req.body;
+    const { fullName, mobileNumber, totalAmount, paidAmount, dueAmount, paymentMode, note, deliveryDate, selectedServices, overStatus } = req.body;
 
     customer.fullName = fullName || customer.fullName;
-    customer.MobileNumber = MobileNumber || customer.MobileNumber;
+    customer.mobileNumber = mobileNumber || customer.mobileNumber;
     customer.totalAmount = totalAmount || customer.totalAmount;
     customer.paidAmount = paidAmount != null ? paidAmount : customer.paidAmount;
     customer.dueAmount = dueAmount || customer.dueAmount;
@@ -139,7 +139,7 @@ const deleteCustomer = asyncHandler(async (req, res, next) => {
     const customer = await Customer.findByIdAndDelete(id);
 
     if (!customer) {
-        return next(new ApiError(404, 'Customer not found'));
+        throw new ApiError(404, 'Customer not found');
     }
 
     res.status(200).json(new ApiResponse(true, 200, 'Customer deleted successfully'));
@@ -150,6 +150,7 @@ const getNextCustomerId = asyncHandler(async (req, res, next) => {
 
     res.status(200).json(new ApiResponse(200, { nextId }, 'Next Service ID generated successfully'));
 });
+
 export {
     createCustomer,
     getCustomers,

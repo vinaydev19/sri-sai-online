@@ -5,7 +5,7 @@ export const createCustomerValidator = () => {
         body('fullName')
             .notEmpty().withMessage('Full Name is required')
             .isString().withMessage('Full Name must be a string'),
-        body('MobileNumber')
+        body('mobileNumber')
             .notEmpty().withMessage('Mobile Number is required')
             .isString().withMessage('Mobile Number must be a string'),
         body('totalAmount')
@@ -62,7 +62,7 @@ export const updateCustomerValidator = () => {
         body('fullName')
             .optional()
             .isString().withMessage('Full Name must be a string'),
-        body('MobileNumber')
+        body('mobileNumber')
             .optional()
             .isString().withMessage('Mobile Number must be a string'),
         body('totalAmount')
