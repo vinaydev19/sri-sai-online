@@ -36,6 +36,7 @@ import {
 } from 'recharts';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useGetReportsQuery } from '@/store/api/reportsSlice';
+import { useSelector } from 'react-redux';
 
 
 const COLORS = ['#1f3b6e', '#fbbf24', '#ef4444'];
@@ -43,11 +44,10 @@ const REVENUE_COLOR = '#1f3b6e';
 
 const Dashboard = () => {
   // Assuming useAuth is a custom hook to get auth info
-  const useAuth = () => {
-    // Mock authenticated user; replace with real auth logic
-    return { user: { fullName: "Admin User", role: "admin" } }; // Change role to 'employee' to test employee view
-  };
-  const { user } = useAuth();
+  const { user } = useSelector((state) => state.user);
+
+  const roleLabel = user?.role === 'admin' ? 'Admin' : 'Employee';
+
   const [selectedRange, setSelectedRange] = useState("7d");
   const [selectedEmployee, setSelectedEmployee] = useState("all");
 
@@ -118,7 +118,7 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <div>
             <h1 className="text-3xl font-bold text-black mb-2">
-              Admin Dashboard
+            {roleLabel} Dashboard
             </h1>
             <p className="text-[#6b7280]">
               Comprehensive overview of business metrics and performance

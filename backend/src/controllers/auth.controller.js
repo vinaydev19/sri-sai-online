@@ -11,7 +11,7 @@ const accessCookieOptions = {
     secure: isProd,
     sameSite: isProd ? "none" : "lax",
     path: "/",
-    maxAge: 15 * 60 * 1000, // 15 minutes
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
 };
 
 const refreshCookieOptions = {

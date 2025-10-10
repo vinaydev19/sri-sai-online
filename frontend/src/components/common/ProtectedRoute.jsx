@@ -1,19 +1,29 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Outlet, Navigate } from 'react-router-dom';
+import { useGetCurrentUserQuery } from '@/store/api/authSlice';
+import { getUser } from '@/store/slices/userSlice';
+import Loading from '@/components/common/Loading';
 
 function ProtectedRoute() {
-  const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const { user } = useSelector(state => state.user);
 
-  if (!user) return <Navigate to="/login" />;
+  // Fetch current user to verify token
+  const { data, isLoading, isError } = useGetCurrentUserQuery();
 
-  // Allow both admin and employee
-  if (user.role === "admin" || user.role === "employee") {
-    return <Outlet />;
-  }
+  useEffect(() => {
+    if (data?.data?.user) {
+      dispatch(getUser(data.data.user));
+    }
+  }, [data, dispatch]);
 
-  // Otherwise redirect
-  return <Navigate to="/login" />;
+  if (isLoading) return <Loading />; // show loader while checking
+
+  // If error or no user, redirect to login
+  if (isError || (!user && !data?.data?.user)) return <Navigate to="/login" />;
+
+  return <Outlet />; // allow child routes
 }
 
 export default ProtectedRoute;
