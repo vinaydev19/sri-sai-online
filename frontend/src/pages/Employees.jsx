@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -16,7 +16,6 @@ const Employees = () => {
   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
   const [deleteEmployee] = useDeleteEmployeeMutation();
 
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({
@@ -28,7 +27,23 @@ const Employees = () => {
     role: 'employee'
   });
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+
   const employees = data?.data?.employees || [];
+
+  // --- Filtering ---
+  const filteredEmployees = useMemo(() => {
+    return employees.filter(emp => {
+      const matchesSearch =
+        emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesRole = roleFilter === 'all' || emp.role === roleFilter;
+      return matchesSearch && matchesRole;
+    });
+  }, [employees, searchTerm, roleFilter]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,7 +63,6 @@ const Employees = () => {
     }
   };
 
-
   const resetForm = () => {
     setFormData({
       fullName: '',
@@ -63,15 +77,8 @@ const Employees = () => {
   };
 
   const handleAdd = () => {
-    setEditingUser(null); // important!
-    setFormData({
-      fullName: '',
-      employeeId: '',
-      username: '',
-      email: '',
-      password: '',
-      role: 'employee'
-    });
+    setEditingUser(null);
+    resetForm();
     setIsDialogOpen(true);
   };
 
@@ -115,137 +122,155 @@ const Employees = () => {
     }
   ];
 
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading employees!</div>;
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-black">Employee Management</h1>
           <p className="text-gray-500">Manage your team members and their access</p>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              onClick={handleAdd}
-              className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white hover:cursor-pointer">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Employee
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2 items-center">
+          {/* Search */}
+          <Input
+            placeholder="Search by name, username or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="min-w-[500px]"
+          />
 
-          <DialogContent className="sm:max-w-md bg-white">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5" />
-                {editingUser ? 'Edit Employee' : 'Add New Employee'}
-              </DialogTitle>
-            </DialogHeader>
+          {/* Role filter */}
+          <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value)} className="min-w-[150px]">
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="employee">Employee</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  value={formData.fullName}
-                  className="border-1 border-gray-300"
-                  onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
-                  placeholder="Enter full name"
-                  required
-                />
-              </div>
+          {/* Add Employee */}
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                onClick={handleAdd}
+                className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white hover:cursor-pointer"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Employee
+              </Button>
+            </DialogTrigger>
 
-              <div className="space-y-2">
-                <Label htmlFor="employeeId">Employee ID</Label>
-                <Input
-                  id="employeeId"
-                  value={formData.employeeId}
-                  className="border-1 border-gray-300"
-                  onChange={(e) => setFormData((prev) => ({ ...prev, employeeId: e.target.value }))}
-                  placeholder="e.g., EMP001"
-                  required
-                />
-              </div>
+            <DialogContent className="sm:max-w-md bg-white">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <UserPlus className="h-5 w-5" />
+                  {editingUser ? 'Edit Employee' : 'Add New Employee'}
+                </DialogTitle>
+              </DialogHeader>
 
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  value={formData.username}
-                  className="border-1 border-gray-300"
-                  onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
-                  placeholder="Enter username"
-                  required
-                />
-              </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Full Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
+                    placeholder="Enter full name"
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  className="border-1 border-gray-300"
-                  value={formData.email}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                  placeholder="Enter email address"
-                  required
-                />
-              </div>
+                {/* Employee ID */}
+                <div className="space-y-2">
+                  <Label htmlFor="employeeId">Employee ID</Label>
+                  <Input
+                    id="employeeId"
+                    value={formData.employeeId}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, employeeId: e.target.value }))}
+                    placeholder="e.g., EMP001"
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  className="border-1 border-gray-300"
-                  value={formData.password}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-                  placeholder="Enter password"
-                // required
-                />
-              </div>
+                {/* Username */}
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    value={formData.username}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
+                    placeholder="Enter username"
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select
-                  value={formData.role}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, role: value }))}
-                  className="w-full"
-                >
-                  <SelectTrigger className="w-full border-1 border-gray-300">
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent className="w-full border-1 border-gray-300 bg-white">
-                    <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" value="employee">
-                      Employee
-                    </SelectItem>
-                    <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" value="admin">
-                      Admin
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                {/* Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                    placeholder="Enter email"
+                    required
+                  />
+                </div>
 
-              <div className="flex gap-3 pt-4">
-                <Button type="submit" className="flex-1 bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white hover:cursor-pointer">
-                  {editingUser ? 'Update Employee' : 'Add Employee'}
-                </Button>
-                <Button
-                  className="hover:bg-gray-100 hover:cursor-pointer border-1 border-gray-300"
-                  type="button"
-                  variant="outline"
-                  onClick={resetForm}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+                {/* Password */}
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+                    placeholder="Enter password"
+                  />
+                </div>
+
+                {/* Role */}
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, role: value }))}
+                    className="w-full"
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="employee">Employee</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button type="submit" className="flex-1 bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white">
+                    {editingUser ? 'Update Employee' : 'Add Employee'}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={resetForm}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <DataTable
-        title={`All Employees (${employees.length})`}
-        data={employees}
+        title={`All Employees (${filteredEmployees.length})`}
+        data={filteredEmployees}
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

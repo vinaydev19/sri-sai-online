@@ -18,6 +18,7 @@ const createCustomer = asyncHandler(async (req, res) => {
         note,
         deliveryDate,
         selectedServices,
+        overStatus
     } = req.body;
 
 
@@ -43,6 +44,7 @@ const createCustomer = asyncHandler(async (req, res) => {
         note,
         deliveryDate,
         selectedServices,
+        overStatus, 
         userId: req.user._id
     });
 
