@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ViewCustomerDialog } from '@/components/customers/ViewCustomerDialog';
 
 const Customers = () => {
   const { data: customerResponse, isLoading: isCustomersLoading, error: customersError } = useGetCustomersQuery();
@@ -28,6 +29,8 @@ const Customers = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [viewCustomer, setViewCustomer] = useState(null);
 
   // Filter state
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,9 +73,10 @@ const Customers = () => {
   };
 
   const handleViewDetails = (customer) => {
-    // Implement view details logic if needed
-    console.log('View details for:', customer);
-  }
+    setViewCustomer(customer);
+    setIsViewDialogOpen(true);
+  };
+
 
   const handleInvoiceDownload = (customer) => {
     // Implement invoice download logic if needed
@@ -83,7 +87,7 @@ const Customers = () => {
   const filteredCustomers = useMemo(() => {
     return customers.filter(c => {
       const matchesSearch = c.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.MobileNumber?.includes(searchTerm);
+        c.mobileNumber?.includes(searchTerm);
       const matchesStatus = statusFilter === 'All' || c.overStatus === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -93,7 +97,7 @@ const Customers = () => {
   const columns = [
     { key: 'customerId', label: 'Customer ID' },
     { key: 'fullName', label: 'Full Name' },
-    { key: 'MobileNumber', label: 'Mobile' },
+    { key: 'mobileNumber', label: 'Mobile' },
     { key: 'totalAmount', label: 'Total Amount', render: value => `₹${value.toLocaleString()}` },
     { key: 'paidAmount', label: 'Paid Amount', render: value => `₹${value.toLocaleString()}` },
     { key: 'dueAmount', label: 'Due Amount', render: value => <span className={value > 0 ? 'text-warning font-medium' : 'text-success'}>₹{value.toLocaleString()}</span> },
@@ -171,6 +175,13 @@ const Customers = () => {
         editingCustomer={editingCustomer}
         isLoading={isCreating || isUpdating}
       />
+
+      <ViewCustomerDialog
+        isOpen={isViewDialogOpen}
+        onClose={() => setIsViewDialogOpen(false)}
+        customer={viewCustomer}
+      />
+
 
       <DataTable
         title={`All Customers (${filteredCustomers.length})`}

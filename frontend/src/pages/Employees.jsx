@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, UserPlus } from 'lucide-react';
 import { useCreateEmployeeMutation, useDeleteEmployeeMutation, useGetEmployeesQuery, useUpdateEmployeeMutation } from '@/store/api/employeeSlice';
 import toast from 'react-hot-toast';
+import { ViewEmployeeDialog } from '@/components/employees/ViewEmployeeDialog';
+import { AddEditEmployeeDialog } from '@/components/employees/AddEditEmployeeDialog';
 
 const Employees = () => {
   const { data, isLoading, isError, refetch } = useGetEmployeesQuery();
@@ -26,6 +28,8 @@ const Employees = () => {
     password: '',
     role: 'employee'
   });
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [viewEmployee, setViewEmployee] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -107,9 +111,9 @@ const Employees = () => {
   };
 
   const handleViewDetails = (employee) => {
-    // Implement view details logic if needed
-    console.log('View details for:', employee);
-  }
+    setViewEmployee(employee);
+    setIsViewDialogOpen(true);
+  };
 
   const columns = [
     { key: 'fullName', label: 'Full Name' },
@@ -159,119 +163,32 @@ const Employees = () => {
             </SelectContent>
           </Select>
 
-          {/* Add Employee */}
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                onClick={handleAdd}
-                className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white hover:cursor-pointer"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Employee
-              </Button>
-            </DialogTrigger>
+          {/* Add Employee Button + Dialog */}
+          <Button
+            onClick={handleAdd}
+            className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white hover:cursor-pointer"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Employee
+          </Button>
 
-            <DialogContent className="sm:max-w-md bg-white">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <UserPlus className="h-5 w-5" />
-                  {editingUser ? 'Edit Employee' : 'Add New Employee'}
-                </DialogTitle>
-              </DialogHeader>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Full Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
-                    placeholder="Enter full name"
-                    required
-                  />
-                </div>
-
-                {/* Employee ID */}
-                <div className="space-y-2">
-                  <Label htmlFor="employeeId">Employee ID</Label>
-                  <Input
-                    id="employeeId"
-                    value={formData.employeeId}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, employeeId: e.target.value }))}
-                    placeholder="e.g., EMP001"
-                    required
-                  />
-                </div>
-
-                {/* Username */}
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    value={formData.username}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
-                    placeholder="Enter username"
-                    required
-                  />
-                </div>
-
-                {/* Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                    placeholder="Enter email"
-                    required
-                  />
-                </div>
-
-                {/* Password */}
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-                    placeholder="Enter password"
-                  />
-                </div>
-
-                {/* Role */}
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select
-                    value={formData.role}
-                    onValueChange={(value) => setFormData((prev) => ({ ...prev, role: value }))}
-                    className="w-full"
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="employee">Employee</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button type="submit" className="flex-1 bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white">
-                    {editingUser ? 'Update Employee' : 'Add Employee'}
-                  </Button>
-                  <Button type="button" variant="outline" onClick={resetForm}>
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <AddEditEmployeeDialog
+            isOpen={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            onSubmit={handleSubmit}
+            formData={formData}
+            setFormData={setFormData}
+            isEditing={!!editingUser}
+          />
         </div>
       </div>
+
+      <ViewEmployeeDialog
+        isOpen={isViewDialogOpen}
+        onClose={() => setIsViewDialogOpen(false)}
+        employee={viewEmployee}
+      />
+
 
       <DataTable
         title={`All Employees (${filteredEmployees.length})`}

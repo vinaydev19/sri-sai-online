@@ -11,6 +11,8 @@ import { Plus, Settings2 } from 'lucide-react';
 import { useCreateServiceMutation, useDeleteServiceMutation, useGetServicesQuery, useLazyNextServiceIdQuery, useUpdateServiceMutation } from '@/store/api/serviceSlice';
 import { useGetEmployeesQuery } from '@/store/api/employeeSlice';
 import toast from 'react-hot-toast';
+import { ViewServiceDialog } from '@/components/services/ViewServiceDialog';
+import { AddEditServiceDialog } from '@/components/services/AddEditServiceDialog';
 
 const Services = () => {
   const { data, isLoading, isError, refetch } = useGetServicesQuery();
@@ -30,6 +32,8 @@ const Services = () => {
     serviceStatus: 'active',
     assignedTo: ''
   });
+  const [selectedService, setSelectedService] = useState(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('AllAI');
@@ -113,9 +117,10 @@ const Services = () => {
   };
 
   const handleViewDetails = (service) => {
-    // Implement view details logic if needed
-    console.log('View details for:', service);
-  }
+    setSelectedService(service);
+    setIsViewDialogOpen(true);
+  };
+
 
   // --- Filtering ---
   const filteredServices = useMemo(() => {
@@ -196,31 +201,33 @@ const Services = () => {
             </SelectContent>
           </Select>
 
-          {/* Add Service */}
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                onClick={resetForm}
-                className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Service
-              </Button>
-            </DialogTrigger>
 
-            {/* Form dialog content same as before */}
-            <DialogContent className="sm:max-w-md bg-white">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Settings2 className="h-5 w-5" />
-                  {editingService ? 'Edit Service' : 'Add New Service'}
-                </DialogTitle>
-              </DialogHeader>
-              {/* form content here (same as previous) */}
-            </DialogContent>
-          </Dialog>
+          <Button
+            onClick={() => { resetForm(); setIsDialogOpen(true); }}
+            className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Service
+          </Button>
+
+          <AddEditServiceDialog
+            isOpen={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            onSubmit={handleSubmit}
+            formData={formData}
+            setFormData={setFormData}
+            isEditing={!!editingService}
+            employees={employees}
+          />
+
         </div>
       </div>
+
+      <ViewServiceDialog
+        isOpen={isViewDialogOpen}
+        onClose={() => setIsViewDialogOpen(false)}
+        service={selectedService}
+      />
 
       <DataTable
         title={`All Services (${filteredServices.length})`}
