@@ -112,6 +112,11 @@ const Services = () => {
     }
   };
 
+  const handleViewDetails = (service) => {
+    // Implement view details logic if needed
+    console.log('View details for:', service);
+  }
+
   // --- Filtering ---
   const filteredServices = useMemo(() => {
     return services.filter(service => {
@@ -223,6 +228,7 @@ const Services = () => {
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onView={handleViewDetails}
       />
     </div>
   );

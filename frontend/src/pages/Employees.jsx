@@ -106,6 +106,11 @@ const Employees = () => {
     }
   };
 
+  const handleViewDetails = (employee) => {
+    // Implement view details logic if needed
+    console.log('View details for:', employee);
+  }
+
   const columns = [
     { key: 'fullName', label: 'Full Name' },
     { key: 'employeeId', label: 'Employee ID' },
@@ -274,6 +279,7 @@ const Employees = () => {
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onView={handleViewDetails}
       />
     </div>
   );

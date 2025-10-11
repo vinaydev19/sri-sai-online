@@ -69,6 +69,16 @@ const Customers = () => {
     setEditingCustomer(null);
   };
 
+  const handleViewDetails = (customer) => {
+    // Implement view details logic if needed
+    console.log('View details for:', customer);
+  }
+
+  const handleInvoiceDownload = (customer) => {
+    // Implement invoice download logic if needed
+    console.log('Download invoice for:', customer);
+  }
+
   // Filtering
   const filteredCustomers = useMemo(() => {
     return customers.filter(c => {
@@ -168,6 +178,8 @@ const Customers = () => {
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onView={handleViewDetails}
+        onDownload={handleInvoiceDownload}
       />
     </div>
   );

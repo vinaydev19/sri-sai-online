@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2, Eye } from 'lucide-react';
+import { Edit, Trash2, Eye, Download } from 'lucide-react';
 
 export function DataTable({
     data,
@@ -11,6 +11,7 @@ export function DataTable({
     onEdit,
     onDelete,
     onView,
+    onDownload,
     actions = true
 }) {
     const renderCellValue = (column, item) => {
@@ -99,6 +100,16 @@ export function DataTable({
                                                         className="h-8 w-8 p-0 hover:bg-gray-600 cursor-pointer"
                                                     >
                                                         <Eye className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                                {onDownload && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => onDownload(item)}
+                                                        className="h-8 w-8 p-0 hover:hover:bg-gray-200 cursor-pointer"
+                                                    >
+                                                        <Download className="h-4 w-4" />
                                                     </Button>
                                                 )}
                                                 {onEdit && (
