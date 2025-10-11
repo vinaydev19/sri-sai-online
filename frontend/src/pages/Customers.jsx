@@ -16,6 +16,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ViewCustomerDialog } from '@/components/customers/ViewCustomerDialog';
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable';
+import { generateInvoice } from '@/utils/InvoiceGenerator';
 
 const Customers = () => {
   const { data: customerResponse, isLoading: isCustomersLoading, error: customersError } = useGetCustomersQuery();
@@ -79,9 +82,9 @@ const Customers = () => {
 
 
   const handleInvoiceDownload = (customer) => {
-    // Implement invoice download logic if needed
-    console.log('Download invoice for:', customer);
-  }
+    generateInvoice(customer);
+  };
+
 
   // Filtering
   const filteredCustomers = useMemo(() => {
@@ -122,7 +125,7 @@ const Customers = () => {
       )
     },
     { key: 'deliveryDate', label: 'Delivery Date' },
-    { key: 'selectedServices', label: 'Services', render: services => <span className="text-sm">{services.length} service(s)</span> }
+    { key: 'selectedServices', label: 'Services', render: services => <span className="text-sm">{services.length} service(s)</span> },
   ];
 
   if (isCustomersLoading || isServicesLoading) return <div>Loading...</div>;
