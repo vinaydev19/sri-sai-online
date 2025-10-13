@@ -22,7 +22,7 @@ const createCustomer = asyncHandler(async (req, res) => {
     } = req.body;
 
 
-    if (!customerId || !fullName || !mobileNumber || !totalAmount || !dueAmount) {
+    if (!customerId || !fullName || !mobileNumber || totalAmount == null || dueAmount == null) {
         throw new ApiError(400, 'Missing required fields');
     }
 
@@ -44,7 +44,7 @@ const createCustomer = asyncHandler(async (req, res) => {
         note,
         deliveryDate,
         selectedServices,
-        overStatus, 
+        overStatus,
         userId: req.user._id
     });
 
@@ -53,8 +53,14 @@ const createCustomer = asyncHandler(async (req, res) => {
 
 const getCustomers = asyncHandler(async (req, res) => {
 
+    let matchFilter = {};
+
+    if (req.user.role === 'employee') {
+        matchFilter['selectedServices.assignedTo'] = new mongoose.Types.ObjectId(req.user._id);
+    }
+    
     const customers = await Customer.aggregate([
-        { $match: { userId: new mongoose.Types.ObjectId(req.user._id) } },
+        { $match: matchFilter },
         {
             $lookup: {
                 from: 'services',

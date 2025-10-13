@@ -12,7 +12,7 @@ router.route('/next-id').get(getNextServiceId);
 
 router.route('/').post(verifyJWT, authorizeRoles('admin'), createServiceValidator(), validate, createService)
 
-router.route('/').get(verifyJWT, authorizeRoles("admin"), getAllServices);
+router.route('/').get(verifyJWT, authorizeRoles("admin", "employee"), getAllServices);
 
 router.route('/:id').get(verifyJWT, authorizeRoles("admin"), getServiceById);
 

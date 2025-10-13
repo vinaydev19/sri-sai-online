@@ -7,6 +7,10 @@ import mongoose from 'mongoose';
 
 
 const createService = asyncHandler(async (req, res, next) => {
+    if (req.user.role === 'employee') {
+        throw new ApiError(403, 'Employees are not allowed to create services');
+    }
+
     const { serviceId, serviceName, serviceAmount, note, serviceStatus, assignedTo } = req.body;
 
     if (!serviceId || !serviceName || !serviceAmount) {
@@ -37,10 +41,19 @@ const createService = asyncHandler(async (req, res, next) => {
 })
 
 const getAllServices = asyncHandler(async (req, res, next) => {
-    const userId = new mongoose.Types.ObjectId(req.user._id);
+
+    let match = {};
+
+    if (req.user.role === 'admin') {
+        // Admin sees all services they created
+        match.userId = new mongoose.Types.ObjectId(req.user._id);
+    } else if (req.user.role === 'employee') {
+        // Employee sees only services assigned to them
+        match.assignedTo = new mongoose.Types.ObjectId(req.user._id);
+    }
 
     const services = await Service.aggregate([
-        { $match: { userId } },
+        { $match: match },
         {
             $lookup: {
                 from: 'users',
@@ -131,6 +144,10 @@ const getServiceById = asyncHandler(async (req, res, next) => {
 });
 
 const updateService = asyncHandler(async (req, res, next) => {
+    if (req.user.role === 'employee') {
+        throw new ApiError(403, 'Employees are not allowed to update services');
+    }
+
     const id = req.params.id;
     const { serviceId, serviceName, serviceAmount, note, serviceStatus, assignedTo } = req.body;
 
@@ -153,6 +170,10 @@ const updateService = asyncHandler(async (req, res, next) => {
 });
 
 const deleteService = asyncHandler(async (req, res, next) => {
+    if (req.user.role === 'employee') {
+        throw new ApiError(403, 'Employees are not allowed to delete services');
+    }
+
     const id = req.params.id;
 
     const service = await Service.findOneAndDelete({ _id: id, userId: req.user._id });

@@ -9,16 +9,10 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
-        destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-
-        // 👇 custom status variants
+        default: "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        secondary: "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        destructive: "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        outline: "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         pendingDocs: "bg-gray-100 text-gray-800 border border-gray-300",
         pending: "bg-yellow-100 text-yellow-800",
         apply: "bg-blue-100 text-blue-800",
@@ -27,11 +21,8 @@ const badgeVariants = cva(
         completed: "bg-green-100 text-green-800",
         delivered: "bg-teal-100 text-teal-800",
         cancelled: "bg-red-100 text-red-800",
-
-        // 👇 keep your role-based ones
         employee: "border-transparent bg-green-100 text-green-800",
         admin: "border-transparent bg-purple-100 text-purple-800",
-        cancelled: "bg-red-500 text-white",
         active: "bg-green-100 text-green-800 border border-green-300",
         inactive: "bg-red-100 text-red-800 border border-red-300",
       },
@@ -40,7 +31,7 @@ const badgeVariants = cva(
       variant: "default",
     },
   }
-)
+);
 
 
 function Badge({

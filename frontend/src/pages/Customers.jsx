@@ -19,8 +19,12 @@ import { ViewCustomerDialog } from '@/components/customers/ViewCustomerDialog';
 import jsPDF from 'jspdf';
 import { autoTable } from 'jspdf-autotable';
 import { generateInvoice } from '@/utils/InvoiceGenerator';
+import { useSelector } from 'react-redux';
 
 const Customers = () => {
+
+  const { user } = useSelector(state => state.user);
+
   const { data: customerResponse, isLoading: isCustomersLoading, error: customersError } = useGetCustomersQuery();
   const { data: serviceResponse, isLoading: isServicesLoading, error: servicesError } = useGetServicesQuery();
   const [createCustomer, { isLoading: isCreating }] = useCreateCustomerMutation();
@@ -29,6 +33,9 @@ const Customers = () => {
 
   const customers = customerResponse?.data?.customers || [];
   const services = serviceResponse?.data?.services || [];
+
+  console.log("Customers:", customers);
+
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
@@ -92,9 +99,21 @@ const Customers = () => {
       const matchesSearch = c.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.mobileNumber?.includes(searchTerm);
       const matchesStatus = statusFilter === 'All' || c.overStatus === statusFilter;
-      return matchesSearch && matchesStatus;
+
+      // Admin sees all customers
+      if (user.role === 'admin') {
+        return matchesSearch && matchesStatus;
+      }
+
+      // Employee sees only customers where any selectedService is assigned to them
+      if (user.role === 'employee') {
+        const assignedToMe = c.selectedServices.some(s => s.assignedTo === user._id);
+        return matchesSearch && matchesStatus && assignedToMe;
+      }
+
+      return false;
     });
-  }, [customers, searchTerm, statusFilter]);
+  }, [customers, searchTerm, statusFilter, user]);
 
   // Columns
   const columns = [
@@ -124,14 +143,24 @@ const Customers = () => {
         </Badge>
       )
     },
-    { key: 'deliveryDate', label: 'Delivery Date' },
+    {
+      key: 'deliveryDate',
+      label: 'Delivery Date',
+      render: value => value ? new Date(value).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }) : '—'
+    },
     { key: 'selectedServices', label: 'Services', render: services => <span className="text-sm">{services.length} service(s)</span> },
   ];
 
-  if (isCustomersLoading || isServicesLoading) return <div>Loading...</div>;
-  if (customersError || servicesError) return <div>Error loading data!</div>;
+
 
   const uniqueStatuses = ['All', ...new Set(customers.map(c => c.overStatus))];
+
+  // if (isCustomersLoading || isServicesLoading) return <div>Loading...</div>;
+  // if (customersError || servicesError) return <div>Error loading data!</div>;
 
   return (
     <div className="space-y-6">

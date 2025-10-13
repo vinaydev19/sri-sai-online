@@ -71,12 +71,13 @@ const loginUser = asyncHandler(async (req, res, next) => {
         throw new ApiError(400, 'All fields are required');
     }
 
-    const query = [];
-    if (username) query.push({ username });
-    if (email) query.push({ email });
-    if (employeeId) query.push({ employeeId });
-
-    const findUser = await User.findOne({ $or: query });
+    const findUser = await User.findOne({
+        $or: [
+            { username },
+            { email: username },
+            { employeeId: username }
+        ]
+    });
 
     if (!findUser) {
         throw new ApiError(401, 'User not found');

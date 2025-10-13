@@ -13,8 +13,11 @@ import { useGetEmployeesQuery } from '@/store/api/employeeSlice';
 import toast from 'react-hot-toast';
 import { ViewServiceDialog } from '@/components/services/ViewServiceDialog';
 import { AddEditServiceDialog } from '@/components/services/AddEditServiceDialog';
+import { useSelector } from 'react-redux';
 
 const Services = () => {
+  const { user } = useSelector(state => state.user);
+
   const { data, isLoading, isError, refetch } = useGetServicesQuery();
   const [createService] = useCreateServiceMutation();
   const [updateService] = useUpdateServiceMutation();
@@ -201,10 +204,10 @@ const Services = () => {
             </SelectContent>
           </Select>
 
-
           <Button
             onClick={() => { resetForm(); setIsDialogOpen(true); }}
             className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white"
+            disabled={user.role === 'employee'} // disable for employees
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Service
@@ -233,8 +236,8 @@ const Services = () => {
         title={`All Services (${filteredServices.length})`}
         data={filteredServices}
         columns={columns}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onEdit={user.role === 'employee' ? undefined : handleEdit}
+        onDelete={user.role === 'employee' ? undefined : handleDelete}
         onView={handleViewDetails}
       />
     </div>

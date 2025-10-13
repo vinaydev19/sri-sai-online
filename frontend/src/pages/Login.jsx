@@ -30,14 +30,14 @@ export const Login = () => {
       navigate('/')
       toast.success(res.message);
     } catch (error) {
-      console.error('Registration failed:', err);
-      if (err?.data?.errors) {
-        const messages = err.data.errors.map(e => Object.values(e)[0]).join(', ');
+      console.error('Registration failed:', error);
+      if (error?.data?.errors) {
+        const messages = error.data.errors.map(e => Object.values(e)[0]).join(', ');
         setError(messages);
       } else {
-        setError(err?.data?.message || 'login failed. Please try again.');
+        setError(error?.data?.message || 'login failed. Please try again.');
       }
-      toast.error(err?.data?.message || 'login failed.');
+      toast.error(error?.data?.message || 'login failed.');
     };
   }
 

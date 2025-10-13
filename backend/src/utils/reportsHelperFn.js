@@ -5,7 +5,9 @@ function getDateGroupFormat(range) {
         case "7d":
             return "%Y-%m-%d"; // each day
         case "1m":
+            return "%Y-%U"; // week number
         case "3m":
+            return "%Y-%U"; // week number
         case "6m":
             return "%Y-%U"; // week number
         case "1y":

@@ -63,7 +63,7 @@ export const Register = () => {
             </div>
             <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
             <CardDescription>
-              Fill in your details to register for ServiceHub
+              Fill in your details to register for Sri Sai Online Seva
             </CardDescription>
           </CardHeader>
 
