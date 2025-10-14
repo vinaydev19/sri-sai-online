@@ -7,7 +7,7 @@ export const generateServiceId = async () => {
         { new: true, upsert: true }
     );
 
-    const id = `SRV-${String(counter.value).padStart(4, '0')}`; // e.g., SRV-0001, SRV-0002, etc.
+    const id = `SRV-${String(counter.value).padStart(4, '0')}`;
     return id;
 }
 

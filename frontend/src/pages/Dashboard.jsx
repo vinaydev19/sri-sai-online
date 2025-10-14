@@ -44,9 +44,6 @@ const Dashboard = () => {
   const { user } = useSelector((state) => state.user);
   const roleLabel = user?.role === 'admin' ? 'admin' : 'employee';
 
-  console.log("User in dashboard", roleLabel);
-
-
   const [selectedRange, setSelectedRange] = useState('7d');
   const [selectedEmployee, setSelectedEmployee] = useState('all');
 
@@ -65,13 +62,9 @@ const Dashboard = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-  console.log("select employee", selectedEmployee);
-
-
   useEffect(() => {
     refetch();
   }, [selectedRange, selectedEmployee, refetch]);
-
 
   const reportData = reportResponse?.data || {};
   const serviceStats =
@@ -111,7 +104,6 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-[#f9f9fa] border-gray-200 border rounded-lg p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <div>
@@ -122,9 +114,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Filter Toolbar */}
         <div className="flex flex-col lg:flex-row gap-4 mt-6 pt-6 border-t border-gray-300">
-          {/* Date Range */}
           <div className="flex flex-col gap-2 flex-1">
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Calendar className="h-4 w-4 text-black" />
@@ -147,7 +137,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Employee Filter */}
           <div className="flex flex-col gap-2 lg:w-[250px] mt-4 lg:mt-0">
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Filter className="h-4 w-4 text-[#F59E0B]" />
@@ -172,7 +161,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Summary Info */}
       <Card className="bg-[#f9f9fa] border-gray-200 border rounded-lg p-6">
         <CardContent className="p-4">
           <p className="text-sm text-[#6b7280]">
@@ -190,7 +178,6 @@ const Dashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Customers"
@@ -221,9 +208,7 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Service Status Pie Chart */}
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle>Service Status Breakdown</CardTitle>
@@ -252,7 +237,6 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Revenue Trend Area Chart */}
         <Card className="shadow-md">
           <CardHeader>
             <CardTitle>Revenue Trend - {rangeLabels[selectedRange]}</CardTitle>
@@ -290,7 +274,6 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Employee Performance (only for 3m+) */}
         {['3m', '6m', '1y', 'life'].includes(selectedRange) && (
           <Card className="shadow-md lg:col-span-2">
             <CardHeader>

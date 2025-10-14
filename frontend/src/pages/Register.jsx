@@ -28,7 +28,6 @@ export const Register = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // api call 
   const [register, { isLoading }] = useRegisterMutation()
 
   const handleSubmit = async (e) => {
@@ -37,8 +36,6 @@ export const Register = () => {
 
     try {
       const res = await register(formData).unwrap();
-      console.log('Registration successful:', res);
-      // Redirect or show success message
       navigate('/login')
       toast.success(res.message);
     } catch (err) {
@@ -69,7 +66,6 @@ export const Register = () => {
 
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Username */}
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
                 <Input
@@ -82,7 +78,6 @@ export const Register = () => {
                 />
               </div>
 
-              {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -95,7 +90,6 @@ export const Register = () => {
                 />
               </div>
 
-              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -108,7 +102,6 @@ export const Register = () => {
                 />
               </div>
 
-              {/* Role (Select) */}
               <div className="space-y-2 ">
                 <Label htmlFor="role">Role</Label>
                 <Select
@@ -127,7 +120,6 @@ export const Register = () => {
                 </Select>
               </div>
 
-              {/* Error display */}
               {error && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />

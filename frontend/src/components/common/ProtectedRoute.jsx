@@ -9,7 +9,6 @@ function ProtectedRoute() {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.user);
 
-  // Fetch current user to verify token
   const { data, isLoading, isError } = useGetCurrentUserQuery();
 
   useEffect(() => {
@@ -18,12 +17,11 @@ function ProtectedRoute() {
     }
   }, [data, dispatch]);
 
-  if (isLoading) return <Loading />; // show loader while checking
+  if (isLoading) return <Loading />; 
 
-  // If error or no user, redirect to login
   if (isError || (!user && !data?.data?.user)) return <Navigate to="/login" />;
 
-  return <Outlet />; // allow child routes
+  return <Outlet />; 
 }
 
 export default ProtectedRoute;

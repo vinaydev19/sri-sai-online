@@ -45,10 +45,8 @@ const getAllServices = asyncHandler(async (req, res, next) => {
     let match = {};
 
     if (req.user.role === 'admin') {
-        // Admin sees all services they created
         match.userId = new mongoose.Types.ObjectId(req.user._id);
     } else if (req.user.role === 'employee') {
-        // Employee sees only services assigned to them
         match.assignedTo = new mongoose.Types.ObjectId(req.user._id);
     }
 

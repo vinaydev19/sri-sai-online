@@ -85,7 +85,7 @@ export const AddCustomerDialog = ({
                 dueAmount,
                 overStatus: customerData.overStatus,
             };
-            await onSubmit(customerPayload); // make sure onSubmit returns a promise
+            await onSubmit(customerPayload); 
             handleClose();
         } finally {
             setIsLoading(false);
@@ -126,7 +126,6 @@ export const AddCustomerDialog = ({
                 paidAmount: editingCustomer.paidAmount || 0
             });
         } else {
-            // Reset for new customer
             setCustomerData({
                 fullName: '',
                 mobileNumber: '',
@@ -155,7 +154,6 @@ export const AddCustomerDialog = ({
                     </DialogTitle>
                 </DialogHeader>
 
-                {/* Progress Indicator */}
                 <div className="flex items-center gap-2 mb-4">
                     <div className={`flex-1 h-2 rounded-full ${step >= 1 ? 'bg-black' : 'bg-gray-200'}`} />
                     <div className={`flex-1 h-2 rounded-full ${step >= 2 ? 'bg-black' : 'bg-gray-200'}`} />
@@ -164,7 +162,6 @@ export const AddCustomerDialog = ({
 
                 {step === 1 && (
                     <div className="space-y-4">
-                        {/* Customer ID */}
                         <div className="space-y-2">
                             <Label htmlFor="customerId">Customer ID</Label>
                             <Input
@@ -177,7 +174,6 @@ export const AddCustomerDialog = ({
                         </div>
 
 
-                        {/* Full Name */}
                         <div className="space-y-2">
                             <Label htmlFor="fullName">Full Name *</Label>
                             <Input
@@ -188,7 +184,6 @@ export const AddCustomerDialog = ({
                             />
                         </div>
 
-                        {/* mobile Number */}
                         <div className="space-y-2">
                             <Label htmlFor="mobileNumber">Mobile number *</Label>
                             <Input
@@ -199,7 +194,6 @@ export const AddCustomerDialog = ({
                             />
                         </div>
 
-                        {/* Delivery Date */}
                         <div className="space-y-2">
                             <Label htmlFor="deliveryDate">Delivery Date *</Label>
                             <Input
@@ -210,7 +204,6 @@ export const AddCustomerDialog = ({
                             />
                         </div>
 
-                        {/* Over Status */}
                         <div className="space-y-2">
                             <Label htmlFor="overStatus">Status *</Label>
                             <Select
@@ -233,7 +226,6 @@ export const AddCustomerDialog = ({
                             </Select>
                         </div>
 
-                        {/* Note */}
                         <div className="space-y-2">
                             <Label htmlFor="note">Note</Label>
                             <Textarea
@@ -245,7 +237,6 @@ export const AddCustomerDialog = ({
                             />
                         </div>
 
-                        {/* Next Button */}
                         <div className="flex justify-end pt-4">
                             <Button
                                 onClick={() => setStep(2)}

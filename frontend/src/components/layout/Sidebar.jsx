@@ -55,7 +55,6 @@ const Sidebar = () => {
     item.roles.includes(user.role)
   );
 
-  // api call to logout
   const [logoutApi] = useLogoutMutation();
   const { data } = useGetCurrentUserQuery()
 
@@ -73,7 +72,6 @@ const Sidebar = () => {
 
   return (
     <div className="w-64 bg-background border-gray-200 border-r-1 h-screen flex flex-col">
-      {/* header */}
       <div className="p-6 border-gray-200 border-b-1">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white rounded-lg flex items-center justify-center">
@@ -86,7 +84,6 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2">
         {filteredNavigation.map((item) => {
           const isActive = location.pathname === item.href;
@@ -106,7 +103,6 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* user & logout */}
       <div className="p-4 border-gray-200 border-t-1">
         <Card className="p-3 mb-3">
           <div className="flex items-center gap-3">

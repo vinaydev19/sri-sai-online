@@ -1,4 +1,3 @@
-// src/components/employees/AddEditEmployeeDialog.jsx
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -26,7 +25,6 @@ export const AddEditEmployeeDialog = ({
                 </DialogHeader>
 
                 <form onSubmit={onSubmit} className="space-y-4">
-                    {/* Full Name */}
                     <div className="space-y-2">
                         <Label htmlFor="fullName">Full Name</Label>
                         <Input
@@ -38,7 +36,6 @@ export const AddEditEmployeeDialog = ({
                         />
                     </div>
 
-                    {/* Employee ID */}
                     <div className="space-y-2">
                         <Label htmlFor="employeeId">Employee ID</Label>
                         <Input
@@ -50,8 +47,7 @@ export const AddEditEmployeeDialog = ({
                         />
                     </div>
 
-                    {/* Username */}
-                    <div className="space-y-2">
+                    \                    <div className="space-y-2">
                         <Label htmlFor="username">Username</Label>
                         <Input
                             id="username"
@@ -62,7 +58,6 @@ export const AddEditEmployeeDialog = ({
                         />
                     </div>
 
-                    {/* Email */}
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
@@ -75,7 +70,6 @@ export const AddEditEmployeeDialog = ({
                         />
                     </div>
 
-                    {/* Password */}
                     <div className="space-y-2">
                         <Label htmlFor="password">Password</Label>
                         <Input
@@ -87,7 +81,6 @@ export const AddEditEmployeeDialog = ({
                         />
                     </div>
 
-                    {/* Role */}
                     <div className="space-y-2">
                         <Label htmlFor="role">Role</Label>
                         <Select
@@ -104,7 +97,6 @@ export const AddEditEmployeeDialog = ({
                         </Select>
                     </div>
 
-                    {/* Buttons */}
                     <div className="flex gap-3 pt-4">
                         <Button
                             type="submit"

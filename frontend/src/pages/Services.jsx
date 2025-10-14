@@ -125,7 +125,6 @@ const Services = () => {
   };
 
 
-  // --- Filtering ---
   const filteredServices = useMemo(() => {
     return services.filter(service => {
       const matchesSearch = service.serviceName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -169,7 +168,6 @@ const Services = () => {
         </div>
 
         <div className="flex gap-2 items-center">
-          {/* Search */}
           <Input
             placeholder="Search by service name..."
             value={searchTerm}
@@ -177,7 +175,6 @@ const Services = () => {
             className="min-w-[500px]"
           />
 
-          {/* Status filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter} className="min-w-[150px]">
             <SelectTrigger className="border-1 border-gray-300">
               <SelectValue placeholder="Filter by status" />
@@ -189,7 +186,6 @@ const Services = () => {
             </SelectContent>
           </Select>
 
-          {/* Assigned Employee filter */}
           <Select value={assignedFilter} onValueChange={setAssignedFilter} className="min-w-[150px]">
             <SelectTrigger className=" border-1 border-gray-300">
               <SelectValue placeholder="Filter by employee" />
@@ -207,7 +203,7 @@ const Services = () => {
           <Button
             onClick={() => { resetForm(); setIsDialogOpen(true); }}
             className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white"
-            disabled={user.role === 'employee'} // disable for employees
+            disabled={user.role === 'employee'} 
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Service

@@ -36,7 +36,6 @@ const Employees = () => {
 
   const employees = data?.data?.employees || [];
 
-  // --- Filtering ---
   const filteredEmployees = useMemo(() => {
     return employees.filter(emp => {
       const matchesSearch =
@@ -143,7 +142,6 @@ const Employees = () => {
         </div>
 
         <div className="flex gap-2 items-center">
-          {/* Search */}
           <Input
             placeholder="Search by name, username or email..."
             value={searchTerm}
@@ -151,7 +149,6 @@ const Employees = () => {
             className="min-w-[500px]"
           />
 
-          {/* Role filter */}
           <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value)} className="min-w-[150px]">
             <SelectTrigger className="border-1 border-gray-300">
               <SelectValue placeholder="Filter by role" />
@@ -163,7 +160,6 @@ const Employees = () => {
             </SelectContent>
           </Select>
 
-          {/* Add Employee Button + Dialog */}
           <Button
             onClick={handleAdd}
             className="bg-gradient-to-br from-[#121F3A] via-[#1e386e] to-[#1C4BB2] text-white hover:cursor-pointer"

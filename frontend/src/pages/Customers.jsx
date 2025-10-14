@@ -34,15 +34,11 @@ const Customers = () => {
   const customers = customerResponse?.data?.customers || [];
   const services = serviceResponse?.data?.services || [];
 
-  console.log("Customers:", customers);
-
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [viewCustomer, setViewCustomer] = useState(null);
 
-  // Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
@@ -52,7 +48,6 @@ const Customers = () => {
         const res = await updateCustomer({ id: editingCustomer._id, ...customerData }).unwrap();
         toast.success(res.message || 'Customer updated successfully!');
       } else {
-        console.log(customerData)
         const res = await createCustomer(customerData).unwrap();
         toast.success(res.message || 'Customer created successfully!');
       }
@@ -93,19 +88,16 @@ const Customers = () => {
   };
 
 
-  // Filtering
   const filteredCustomers = useMemo(() => {
     return customers.filter(c => {
       const matchesSearch = c.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.mobileNumber?.includes(searchTerm);
       const matchesStatus = statusFilter === 'All' || c.overStatus === statusFilter;
 
-      // Admin sees all customers
       if (user.role === 'admin') {
         return matchesSearch && matchesStatus;
       }
 
-      // Employee sees only customers where any selectedService is assigned to them
       if (user.role === 'employee') {
         const assignedToMe = c.selectedServices.some(s => s.assignedTo === user._id);
         return matchesSearch && matchesStatus && assignedToMe;
@@ -115,7 +107,6 @@ const Customers = () => {
     });
   }, [customers, searchTerm, statusFilter, user]);
 
-  // Columns
   const columns = [
     { key: 'customerId', label: 'Customer ID' },
     { key: 'fullName', label: 'Full Name' },
@@ -171,7 +162,6 @@ const Customers = () => {
         </div>
 
         <div className="flex gap-2 items-center">
-          {/* Shadcn Input */}
           <Input
             placeholder="Search by name or mobile..."
             value={searchTerm}
@@ -179,7 +169,6 @@ const Customers = () => {
             className="min-w-[500px]"
           />
 
-          {/* Shadcn Select */}
           <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)} className="min-w-[150px]">
             <SelectTrigger className="border-1 border-gray-300">
               <SelectValue placeholder="Filter by status" />
@@ -203,7 +192,7 @@ const Customers = () => {
         onClose={handleDialogClose}
         onSubmit={handleAddCustomer}
         services={services}
-        users={[]} // replace with users API if needed
+        users={[]}
         editingCustomer={editingCustomer}
         isLoading={isCreating || isUpdating}
       />

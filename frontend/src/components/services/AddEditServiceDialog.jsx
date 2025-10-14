@@ -34,7 +34,6 @@ export const AddEditServiceDialog = ({
                 </DialogHeader>
 
                 <form onSubmit={onSubmit} className="space-y-4">
-                    {/* Service ID */}
                     <div className="space-y-2">
                         <Label htmlFor="serviceId">Service ID</Label>
                         <Input
@@ -46,7 +45,6 @@ export const AddEditServiceDialog = ({
                         />
                     </div>
 
-                    {/* Service Name */}
                     <div className="space-y-2">
                         <Label htmlFor="serviceName">Service Name</Label>
                         <Input
@@ -58,7 +56,6 @@ export const AddEditServiceDialog = ({
                         />
                     </div>
 
-                    {/* Amount */}
                     <div className="space-y-2">
                         <Label htmlFor="serviceAmount">Amount (₹)</Label>
                         <Input
@@ -71,7 +68,6 @@ export const AddEditServiceDialog = ({
                         />
                     </div>
 
-                    {/* Assigned To */}
                     <div className="space-y-2">
                         <Label htmlFor="assignedTo">Assigned Employee</Label>
                         <Select
@@ -91,7 +87,6 @@ export const AddEditServiceDialog = ({
                         </Select>
                     </div>
 
-                    {/* Status */}
                     <div className="space-y-2">
                         <Label htmlFor="serviceStatus">Status</Label>
                         <Select
@@ -108,7 +103,6 @@ export const AddEditServiceDialog = ({
                         </Select>
                     </div>
 
-                    {/* Note */}
                     <div className="space-y-2">
                         <Label htmlFor="note">Note</Label>
                         <Textarea

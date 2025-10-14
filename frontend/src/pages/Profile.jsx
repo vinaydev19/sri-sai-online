@@ -100,7 +100,6 @@ const Profile = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Full Name */}
               <div>
                 <Label>Full Name</Label>
                 <Input
@@ -112,7 +111,6 @@ const Profile = () => {
                 />
               </div>
 
-              {/* Username */}
               <div>
                 <Label>Username</Label>
                 <Input
@@ -124,7 +122,6 @@ const Profile = () => {
                 />
               </div>
 
-              {/* Email */}
               <div>
                 <Label>Email</Label>
                 <Input
@@ -137,7 +134,6 @@ const Profile = () => {
                 />
               </div>
 
-              {/* Employee ID */}
               {formData.role === 'employee' && (
                 <div>
                   <Label>Employee ID</Label>
@@ -151,7 +147,6 @@ const Profile = () => {
                 </div>
               )}
 
-              {/* Mobile Number */}
               <div>
                 <Label>Mobile Number</Label>
                 <Input

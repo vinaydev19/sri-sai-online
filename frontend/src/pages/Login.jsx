@@ -25,8 +25,6 @@ export const Login = () => {
 
     try {
       const res = await login(formData).unwrap();
-      console.log('Login successful:', res);
-      // Redirect or show success message
       navigate('/')
       toast.success(res.message);
     } catch (error) {

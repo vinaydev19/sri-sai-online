@@ -13,7 +13,7 @@ const persistConfig = {
     key: 'SriSaiOnline',
     version: 1,
     storage,
-    whitelist: ['user'], // only user will be persisted
+    whitelist: ['user'],
 };
 
 const rootReducer = combineReducers({

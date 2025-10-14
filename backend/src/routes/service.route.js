@@ -7,7 +7,6 @@ import { authorizeRoles } from "../middlewares/roles.middleware.js";
 
 const router = Router();
 
-// next id
 router.route('/next-id').get(getNextServiceId);
 
 router.route('/').post(verifyJWT, authorizeRoles('admin'), createServiceValidator(), validate, createService)

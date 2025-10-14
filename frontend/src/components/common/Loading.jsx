@@ -1,4 +1,3 @@
-// src/components/common/Loading.jsx
 import React from 'react';
 
 function Loading() {
@@ -9,7 +8,6 @@ function Loading() {
                 <p className="text-gray-600 text-lg">Loading...</p>
             </div>
 
-            {/* Loader CSS */}
             <style>
                 {`
           .loader {

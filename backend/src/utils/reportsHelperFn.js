@@ -1,19 +1,19 @@
 function getDateGroupFormat(range) {
     switch (range) {
         case "1d":
-            return "%Y-%m-%d"; // today
+            return "%Y-%m-%d";
         case "7d":
-            return "%Y-%m-%d"; // each day
+            return "%Y-%m-%d";
         case "1m":
-            return "%Y-%U"; // week number
+            return "%Y-%U";
         case "3m":
-            return "%Y-%U"; // week number
+            return "%Y-%U";
         case "6m":
-            return "%Y-%U"; // week number
+            return "%Y-%U";
         case "1y":
-            return "%Y-%m"; // month
+            return "%Y-%m";
         case "life":
-            return "%Y"; // year
+            return "%Y";
         default:
             return "%Y-%m-%d";
     }

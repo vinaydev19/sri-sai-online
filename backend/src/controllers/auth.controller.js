@@ -64,9 +64,6 @@ const registerUser = asyncHandler(async (req, res, next) => {
 const loginUser = asyncHandler(async (req, res, next) => {
     const { username, email, employeeId, password } = req.body;
 
-    console.log(req.body);
-
-
     if ([!password].includes(undefined) || [!username, !email, !employeeId].every(field => field === undefined)) {
         throw new ApiError(400, 'All fields are required');
     }

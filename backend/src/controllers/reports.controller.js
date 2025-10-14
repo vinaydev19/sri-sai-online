@@ -5,20 +5,17 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { Customer } from "../models/customer.model.js";
 import { getDateGroupFormat } from '../utils/reportsHelperFn.js';
 
-// ✅ Dashboard Report Controller
 const getDashboardReport = asyncHandler(async (req, res) => {
     const { range = '7d', employee = "all" } = req.query;
 
-    // ✅ Employee filter (if employee !== all)
     const matchEmployee =
         employee !== 'all'
             ? { "selectedServices.assignedTo": new mongoose.Types.ObjectId(employee) }
             : {};
 
-    // ✅ Clone-safe date handling
     const now = new Date();
     const startDate = (() => {
-        const d = new Date(now); // clone before modifying
+        const d = new Date(now);
         switch (range) {
             case "1d": return new Date(d.setDate(d.getDate() - 1));
             case "7d": return new Date(d.setDate(d.getDate() - 7));
@@ -31,16 +28,8 @@ const getDashboardReport = asyncHandler(async (req, res) => {
         }
     })();
 
-    // ✅ For debugging (optional)
-    console.log("📅 Range:", range);
-    console.log("➡️ Match Condition:", {
-        ...matchEmployee,
-        "selectedServices.deliveryDate": { $gte: startDate, $lte: now },
-    });
-
     const unwind = { $unwind: "$selectedServices" };
 
-    // --- Overall Stats ---
     const overallStatsPipeline = [
         unwind,
         { $match: matchEmployee },
@@ -72,7 +61,6 @@ const getDashboardReport = asyncHandler(async (req, res) => {
             totalCustomers: 0,
         };
 
-    // --- Service Stats ---
     const serviceStatsPipeline = [
         unwind,
         { $match: matchEmployee },
@@ -92,7 +80,6 @@ const getDashboardReport = asyncHandler(async (req, res) => {
     ];
     const serviceStats = await Customer.aggregate(serviceStatsPipeline);
 
-    // --- Employee Stats ---
     const employeeStatsPipeline = [
         unwind,
         { $match: matchEmployee },
@@ -153,14 +140,12 @@ const getDashboardReport = asyncHandler(async (req, res) => {
     ];
     const employeeStats = await Customer.aggregate(employeeStatsPipeline);
 
-    // --- Revenue Trend ---
     const dateFormat = getDateGroupFormat(range);
     const revenueTrendPipeline = [
         unwind,
         {
             $match: {
                 ...matchEmployee,
-                // ✅ use root-level deliveryDate
                 deliveryDate: { $gte: startDate, $lte: now },
             },
         },
@@ -188,7 +173,6 @@ const getDashboardReport = asyncHandler(async (req, res) => {
 
     const revenueTrend = await Customer.aggregate(revenueTrendPipeline);
 
-    // --- Response ---
     return res
         .status(200)
         .json(
