@@ -181,12 +181,12 @@ const Customers = () => {
 
           {/* Shadcn Select */}
           <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)} className="min-w-[150px]">
-            <SelectTrigger>
+            <SelectTrigger className="border-1 border-gray-300">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="w-full border-1 border-gray-300 bg-white">
               {uniqueStatuses.map(status => (
-                <SelectItem key={status} value={status}>{status}</SelectItem>
+                <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" key={status} value={status}>{status}</SelectItem>
               ))}
             </SelectContent>
           </Select>

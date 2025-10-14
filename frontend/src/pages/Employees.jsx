@@ -153,13 +153,13 @@ const Employees = () => {
 
           {/* Role filter */}
           <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value)} className="min-w-[150px]">
-            <SelectTrigger>
+            <SelectTrigger className="border-1 border-gray-300">
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="employee">Employee</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
+            <SelectContent className="w-full border-1 border-gray-300 bg-white">
+              <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" value="all">All</SelectItem>
+              <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" value="employee">Employee</SelectItem>
+              <SelectItem className="hover:bg-gray-100 hover:cursor-pointer" value="admin">Admin</SelectItem>
             </SelectContent>
           </Select>
 
