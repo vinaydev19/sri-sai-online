@@ -134,6 +134,17 @@ export const Register = () => {
               >
                 {isLoading ? 'Registering...' : 'Register'}
               </Button>
+              <div className="text-center mt-4">
+                <p className="text-sm text-gray-600">
+                  if already have an account?{" "}
+                  <span
+                    className="text-blue-600 hover:underline cursor-pointer"
+                    onClick={() => navigate('/login')}
+                  >
+                    login here
+                  </span>
+                </p>
+              </div>
             </form>
           </CardContent>
         </Card>

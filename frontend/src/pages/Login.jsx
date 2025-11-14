@@ -95,6 +95,17 @@ export const Login = () => {
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
+              <div className="text-center mt-4">
+                <p className="text-sm text-gray-600">
+                  Don’t have an account?{" "}
+                  <span
+                    className="text-blue-600 hover:underline cursor-pointer"
+                    onClick={() => navigate('/register')}
+                  >
+                    Create one
+                  </span>
+                </p>
+              </div>
             </form>
           </CardContent>
         </Card>

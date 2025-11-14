@@ -53,10 +53,16 @@ const createCustomer = asyncHandler(async (req, res) => {
 
 const getCustomers = asyncHandler(async (req, res) => {
 
-    let matchFilter = {};
-
+    let matchFilter = {
+        userId: new mongoose.Types.ObjectId(req.user._id)
+    };
+    
     if (req.user.role === 'employee') {
-        matchFilter['selectedServices.assignedTo'] = new mongoose.Types.ObjectId(req.user._id);
+        matchFilter['selectedServices'] = {
+            $elemMatch: {
+                assignedTo: new mongoose.Types.ObjectId(req.user._id)
+            }
+        };
     }
     
     const customers = await Customer.aggregate([
