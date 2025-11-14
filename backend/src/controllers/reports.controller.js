@@ -8,10 +8,14 @@ import { getDateGroupFormat } from '../utils/reportsHelperFn.js';
 const getDashboardReport = asyncHandler(async (req, res) => {
     const { range = '7d', employee = "all" } = req.query;
 
+    // Filter by employee (optional)
     const matchEmployee =
         employee !== 'all'
             ? { "selectedServices.assignedTo": new mongoose.Types.ObjectId(employee) }
             : {};
+
+    // Filter by logged-in user (IMPORTANT)
+    const matchUser = { userId: new mongoose.Types.ObjectId(req.user._id) };
 
     const now = new Date();
     const startDate = (() => {
@@ -30,7 +34,11 @@ const getDashboardReport = asyncHandler(async (req, res) => {
 
     const unwind = { $unwind: "$selectedServices" };
 
+    // -------------------------------------------
+    // 1️⃣ OVERALL STATS — ONLY LOGGED IN USER
+    // -------------------------------------------
     const overallStatsPipeline = [
+        { $match: matchUser },
         unwind,
         { $match: matchEmployee },
         {
@@ -61,7 +69,11 @@ const getDashboardReport = asyncHandler(async (req, res) => {
             totalCustomers: 0,
         };
 
+    // -------------------------------------------
+    // 2️⃣ SERVICE STATUS STATS — ONLY LOGGED IN USER
+    // -------------------------------------------
     const serviceStatsPipeline = [
+        { $match: matchUser },
         unwind,
         { $match: matchEmployee },
         {
@@ -78,9 +90,14 @@ const getDashboardReport = asyncHandler(async (req, res) => {
             },
         },
     ];
+
     const serviceStats = await Customer.aggregate(serviceStatsPipeline);
 
+    // -------------------------------------------
+    // 3️⃣ EMPLOYEE STATS — ONLY LOGGED IN USER
+    // -------------------------------------------
     const employeeStatsPipeline = [
+        { $match: matchUser },
         unwind,
         { $match: matchEmployee },
         {
@@ -138,10 +155,16 @@ const getDashboardReport = asyncHandler(async (req, res) => {
             },
         },
     ];
+
     const employeeStats = await Customer.aggregate(employeeStatsPipeline);
 
+    // -------------------------------------------
+    // 4️⃣ REVENUE TREND — ONLY LOGGED IN USER
+    // -------------------------------------------
     const dateFormat = getDateGroupFormat(range);
+
     const revenueTrendPipeline = [
+        { $match: matchUser },
         unwind,
         {
             $match: {
@@ -152,10 +175,7 @@ const getDashboardReport = asyncHandler(async (req, res) => {
         {
             $group: {
                 _id: {
-                    $dateToString: {
-                        format: dateFormat,
-                        date: "$deliveryDate",
-                    },
+                    $dateToString: { format: dateFormat, date: "$deliveryDate" },
                 },
                 revenue: { $sum: "$selectedServices.serviceAmount" },
             },
@@ -170,18 +190,18 @@ const getDashboardReport = asyncHandler(async (req, res) => {
         },
     ];
 
-
     const revenueTrend = await Customer.aggregate(revenueTrendPipeline);
 
-    return res
-        .status(200)
-        .json(
-            new ApiResponse(
-                true,
-                { overallStats, serviceStats, employeeStats, revenueTrend },
-                "Dashboard report fetched successfully"
-            )
-        );
+    // -------------------------------------------
+    // RESPONSE
+    // -------------------------------------------
+    return res.status(200).json(
+        new ApiResponse(
+            true,
+            { overallStats, serviceStats, employeeStats, revenueTrend },
+            "Dashboard report fetched successfully"
+        )
+    );
 });
 
 export { getDashboardReport };
