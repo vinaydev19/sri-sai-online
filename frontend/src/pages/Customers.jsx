@@ -208,8 +208,8 @@ const Customers = () => {
         title={`All Customers (${filteredCustomers.length})`}
         data={filteredCustomers}
         columns={columns}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onEdit={user.role === 'admin' ? handleEdit : undefined}
+        onDelete={user.role === 'admin' ? handleDelete : undefined}
         onView={handleViewDetails}
         onDownload={handleInvoiceDownload}
       />
